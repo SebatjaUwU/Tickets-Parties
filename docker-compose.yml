@@ -1,0 +1,137 @@
+services:
+  # ---- PostgreSQL ----
+  postgres:
+    image: postgres:16-alpine
+    container_name: fan-tribute-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: fan_tribute
+      POSTGRES_USER: fan_tribute_user
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-supersecret}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U fan_tribute_user -d fan_tribute"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - fan-tribute-network
+
+  # ---- Redis ----
+  redis:
+    image: redis:7-alpine
+    container_name: fan-tribute-redis
+    restart: unless-stopped
+    command: redis-server --requirepass ${REDIS_PASSWORD:-redissecret} --maxmemory 256mb --maxmemory-policy allkeys-lru
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "--no-auth-warning", "-a", "${REDIS_PASSWORD:-redissecret}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - fan-tribute-network
+
+  # ---- Backend (NestJS) ----
+  backend:
+    build:
+      context: ./fan-tribute-backend
+      dockerfile: Dockerfile
+      target: development
+    container_name: fan-tribute-api
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      NODE_ENV: development
+      PORT: 3000
+      DATABASE_URL: postgresql://fan_tribute_user:${POSTGRES_PASSWORD:-supersecret}@postgres:5432/fan_tribute
+      REDIS_URL: redis://:${REDIS_PASSWORD:-redissecret}@redis:6379
+      JWT_SECRET: ${JWT_SECRET:-change_this_secret_in_production_min_32_chars}
+      JWT_EXPIRES_IN: 15m
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:-change_this_refresh_secret_in_prod}
+      JWT_REFRESH_EXPIRES: 7d
+      FRONTEND_URL: http://localhost:4200
+      AWS_REGION: ${AWS_REGION:-us-east-1}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      AWS_S3_BUCKET: ${AWS_S3_BUCKET:-fan-tribute-media}
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET}
+      MERCADOPAGO_ACCESS_TOKEN: ${MERCADOPAGO_ACCESS_TOKEN}
+      WOMPI_PRIVATE_KEY: ${WOMPI_PRIVATE_KEY}
+      WOMPI_PUBLIC_KEY: ${WOMPI_PUBLIC_KEY}
+      RESEND_API_KEY: ${RESEND_API_KEY}
+      FIREBASE_PROJECT_ID: ${FIREBASE_PROJECT_ID}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./fan-tribute-backend/src:/app/src
+      - /app/node_modules
+    networks:
+      - fan-tribute-network
+
+  # ---- Frontend (Angular) ----
+  frontend:
+    build:
+      context: ./fan-tribute-frontend
+      dockerfile: Dockerfile
+      target: development
+    container_name: fan-tribute-web
+    restart: unless-stopped
+    depends_on:
+      - backend
+    environment:
+      NODE_ENV: development
+    ports:
+      - "4200:4200"
+    volumes:
+      - ./fan-tribute-frontend/src:/app/src
+      - /app/node_modules
+    networks:
+      - fan-tribute-network
+
+  # ---- Redis Commander (dev only) ----
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: fan-tribute-redis-ui
+    profiles: ["dev-tools"]
+    environment:
+      REDIS_HOSTS: local:redis:6379:0:${REDIS_PASSWORD:-redissecret}
+    ports:
+      - "8081:8081"
+    networks:
+      - fan-tribute-network
+
+  # ---- pgAdmin (dev only) ----
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: fan-tribute-pgadmin
+    profiles: ["dev-tools"]
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@fantribute.com
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-pgadmin}
+    ports:
+      - "5050:80"
+    networks:
+      - fan-tribute-network
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  fan-tribute-network:
+    driver: bridge

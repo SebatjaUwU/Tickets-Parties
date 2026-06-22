@@ -1,0 +1,141 @@
+import { Component, inject, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../environments/environment';
+import { NotificationService } from '../../core/services/notification.service';
+
+@Component({
+  selector: 'app-contact',
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule],
+  template: `
+    <section class="min-h-screen bg-dark-900 pt-24 pb-16">
+      <div class="container mx-auto px-4 max-w-2xl">
+
+        <!-- Header -->
+        <div class="text-center mb-12">
+          <h1 class="text-4xl md:text-6xl font-rajdhani font-bold text-white mb-4">
+            CONTÁCT<span class="text-electric-blue">ANOS</span>
+          </h1>
+          <p class="text-gray-400 text-lg">
+            ¿Tienes una propuesta, pregunta o quieres organizar un evento? Escríbenos.
+          </p>
+        </div>
+
+        <!-- Contact form -->
+        <div class="glass-card rounded-2xl p-8">
+          <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-6">
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-300 mb-2">Nombre</label>
+                <input
+                  formControlName="name"
+                  type="text"
+                  placeholder="Tu nombre"
+                  class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-electric-blue transition-colors"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-300 mb-2">Email</label>
+                <input
+                  formControlName="email"
+                  type="email"
+                  placeholder="tu@email.com"
+                  class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-electric-blue transition-colors"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-300 mb-2">Asunto</label>
+              <select
+                formControlName="subject"
+                class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-electric-blue transition-colors"
+              >
+                <option value="">Selecciona un asunto</option>
+                <option value="event">Propuesta de evento</option>
+                <option value="artist">Booking de artista</option>
+                <option value="support">Soporte técnico</option>
+                <option value="press">Prensa</option>
+                <option value="other">Otro</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-300 mb-2">Mensaje</label>
+              <textarea
+                formControlName="message"
+                rows="6"
+                placeholder="Cuéntanos en qué podemos ayudarte..."
+                class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-electric-blue transition-colors resize-none"
+              ></textarea>
+            </div>
+
+            <button
+              type="submit"
+              [disabled]="form.invalid || sending()"
+              class="btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              @if (sending()) {
+                <span>Enviando...</span>
+              } @else {
+                <span>Enviar mensaje</span>
+              }
+            </button>
+          </form>
+        </div>
+
+        <!-- Contact info -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-10">
+          @for (info of contactInfo; track info.label) {
+            <div class="glass rounded-xl p-5 text-center">
+              <div class="text-3xl mb-2">{{ info.icon }}</div>
+              <div class="text-sm text-gray-400 mb-1">{{ info.label }}</div>
+              <div class="text-white font-medium">{{ info.value }}</div>
+            </div>
+          }
+        </div>
+
+      </div>
+    </section>
+  `,
+})
+export class ContactComponent {
+  private readonly fb = inject(FormBuilder);
+  private readonly http = inject(HttpClient);
+  private readonly notify = inject(NotificationService);
+
+  sending = signal(false);
+  sent = signal(false);
+
+  form = this.fb.group({
+    name: ['', [Validators.required, Validators.minLength(2)]],
+    email: ['', [Validators.required, Validators.email]],
+    subject: ['', Validators.required],
+    message: ['', [Validators.required, Validators.minLength(20)]],
+  });
+
+  contactInfo = [
+    { icon: '📧', label: 'Email', value: 'hola@fantribute.com' },
+    { icon: '📱', label: 'WhatsApp', value: '+57 300 000 0000' },
+    { icon: '📍', label: 'Ciudad', value: 'Bogotá, Colombia' },
+  ];
+
+  onSubmit(): void {
+    if (this.form.invalid || this.sending()) return;
+    this.sending.set(true);
+    this.http.post(`${environment.apiUrl}/contact`, this.form.value).subscribe({
+      next: () => {
+        this.notify.success('¡Mensaje enviado! Te responderemos pronto.');
+        this.form.reset();
+        this.sending.set(false);
+      },
+      error: () => {
+        this.notify.error('Error al enviar el mensaje. Inténtalo de nuevo.');
+        this.sending.set(false);
+      },
+    });
+  }
+}

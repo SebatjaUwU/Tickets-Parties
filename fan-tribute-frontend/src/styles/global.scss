@@ -1,0 +1,355 @@
+@use 'variables' as *;
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+// ============================================================
+// FAN TRIBUTE — Global Styles
+// ============================================================
+
+// --- Google Fonts ---
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=Rajdhani:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+// --- Base Reset ---
+@layer base {
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-edm-black text-white font-sans antialiased;
+    font-family: $font-sans;
+    background-color: $color-black;
+    color: $color-white;
+    line-height: $line-height-normal;
+    overflow-x: hidden;
+  }
+
+  ::selection {
+    background-color: rgba(0, 153, 255, 0.3);
+    color: $color-white;
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: $color-black;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: $color-electric-blue;
+    border-radius: $radius-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: darken($color-electric-blue, 10%);
+  }
+
+  img, video {
+    max-width: 100%;
+    height: auto;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+    transition: color $transition-normal;
+  }
+}
+
+// --- Component Classes ---
+@layer components {
+
+  // Glassmorphism
+  .glass {
+    background: $glass-bg;
+    backdrop-filter: $glass-blur;
+    -webkit-backdrop-filter: $glass-blur;
+    border: 1px solid $glass-border;
+  }
+
+  .glass-dark {
+    background: rgba(10, 31, 68, 0.6);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(0, 153, 255, 0.15);
+  }
+
+  .glass-card {
+    @extend .glass-dark;
+    border-radius: $radius-2xl;
+    box-shadow: $shadow-card;
+    transition: transform $transition-smooth, box-shadow $transition-smooth;
+
+    &:hover {
+      transform: translateY(-4px);
+      box-shadow: $shadow-glow-blue;
+    }
+  }
+
+  // Buttons
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-semibold text-white text-sm transition-all duration-300;
+    background: $gradient-btn;
+    box-shadow: 0 4px 15px rgba(0, 153, 255, 0.3);
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: $shadow-glow-blue;
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+
+    &:disabled {
+      @apply opacity-50 cursor-not-allowed;
+      transform: none;
+    }
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm transition-all duration-300;
+    background: transparent;
+    border: 2px solid $color-electric-blue;
+    color: $color-electric-blue;
+
+    &:hover {
+      background: rgba(0, 153, 255, 0.1);
+      transform: translateY(-2px);
+      box-shadow: $shadow-glow-blue;
+    }
+  }
+
+  .btn-orange {
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-semibold text-white text-sm transition-all duration-300;
+    background: $gradient-btn-orange;
+    box-shadow: 0 4px 15px rgba(255, 106, 0, 0.3);
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: $shadow-glow-orange;
+    }
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-semibold text-white text-sm transition-all duration-300;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+  }
+
+  // Form Inputs
+  .input-field {
+    @apply w-full px-4 py-3 rounded-xl text-white placeholder-gray-400 text-sm transition-all duration-300 outline-none;
+    background: $input-bg;
+    border: 1px solid $input-border;
+
+    &:focus {
+      border-color: $color-electric-blue;
+      box-shadow: 0 0 0 3px rgba(0, 153, 255, 0.15);
+    }
+
+    &.error {
+      border-color: $color-error;
+    }
+  }
+
+  .input-label {
+    @apply block text-sm font-medium text-gray-300 mb-1;
+  }
+
+  // Section titles
+  .section-title {
+    @apply text-center;
+
+    .subtitle {
+      @apply text-electric-blue-500 text-sm font-semibold uppercase tracking-widest mb-3;
+    }
+
+    h2 {
+      font-family: $font-display;
+      font-size: clamp(1.75rem, 4vw, 3rem);
+      font-weight: $font-weight-bold;
+      line-height: $line-height-tight;
+      color: $color-white;
+    }
+
+    p {
+      @apply text-gray-400 mt-4 max-w-2xl mx-auto;
+    }
+  }
+
+  // Section wrapper
+  .section {
+    @apply py-16 md:py-24;
+  }
+
+  .container-custom {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  // Gradient text
+  .gradient-text {
+    background: $gradient-edm;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .gradient-text-blue {
+    background: linear-gradient(135deg, $color-electric-blue, lighten($color-electric-blue, 20%));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  // Divider glow
+  .divider-glow {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, $color-electric-blue, transparent);
+    margin: $space-8 0;
+  }
+
+  // Badge
+  .badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold;
+
+    &-blue   { background: rgba(0, 153, 255, 0.15); color: $color-electric-blue; border: 1px solid rgba(0,153,255,0.3); }
+    &-orange { background: rgba(255, 106, 0, 0.15); color: $color-orange; border: 1px solid rgba(255,106,0,0.3); }
+    &-green  { background: rgba(16, 185, 129, 0.15); color: $color-success; border: 1px solid rgba(16,185,129,0.3); }
+    &-red    { background: rgba(239, 68, 68, 0.15); color: $color-error; border: 1px solid rgba(239,68,68,0.3); }
+  }
+
+  // Skeleton loading
+  .skeleton {
+    background: linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.05) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: $radius-md;
+  }
+
+  // Particle background
+  .particle-bg {
+    position: relative;
+    overflow: hidden;
+
+    &::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 20% 50%, rgba(0,153,255,0.15) 0%, transparent 60%),
+                  radial-gradient(ellipse at 80% 50%, rgba(255,106,0,0.1) 0%, transparent 60%);
+      pointer-events: none;
+    }
+  }
+
+  // Neon glow text
+  .neon-blue {
+    text-shadow: 0 0 10px rgba(0,153,255,0.8),
+                 0 0 20px rgba(0,153,255,0.5),
+                 0 0 40px rgba(0,153,255,0.3);
+  }
+
+  .neon-orange {
+    text-shadow: 0 0 10px rgba(255,106,0,0.8),
+                 0 0 20px rgba(255,106,0,0.5),
+                 0 0 40px rgba(255,106,0,0.3);
+  }
+
+  // Tag chip
+  .tag {
+    @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-medium;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: $color-gray-300;
+    transition: all $transition-fast;
+
+    &:hover {
+      background: rgba(0,153,255,0.1);
+      border-color: rgba(0,153,255,0.3);
+      color: $color-electric-blue;
+    }
+  }
+
+  // Scroll reveal
+  .reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+
+    &.revealed {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  // Pagination
+  .page-btn {
+    @apply w-10 h-10 flex items-center justify-center rounded-xl text-sm font-medium transition-all duration-200;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: $color-gray-300;
+
+    &:hover {
+      background: rgba(0,153,255,0.1);
+      border-color: $color-electric-blue;
+      color: $color-electric-blue;
+    }
+
+    &.active {
+      background: $color-electric-blue;
+      border-color: $color-electric-blue;
+      color: $color-white;
+      box-shadow: $shadow-glow-blue;
+    }
+  }
+}
+
+// --- Utility Overrides ---
+@layer utilities {
+  .text-gradient {
+    background: $gradient-edm;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .border-glow {
+    border-color: rgba(0, 153, 255, 0.3);
+    box-shadow: 0 0 0 1px rgba(0, 153, 255, 0.1) inset;
+  }
+}
+
+// --- Angular Material Theme Overrides ---
+.mat-mdc-dialog-container {
+  background: $color-dark-blue !important;
+  border: 1px solid rgba(0,153,255,0.2) !important;
+  border-radius: $radius-2xl !important;
+}
+
+.mat-mdc-snack-bar-container {
+  &.snack-success { --mdc-snackbar-container-color: #{$color-success}; }
+  &.snack-error   { --mdc-snackbar-container-color: #{$color-error}; }
+  &.snack-info    { --mdc-snackbar-container-color: #{$color-electric-blue}; }
+}
+
+// --- Animations for page transitions ---
+.page-enter {
+  animation: fadeUp 0.4s ease-out;
+}
+
+.route-enter {
+  animation: fadeIn 0.3s ease-out;
+}
