@@ -1,18 +1,10 @@
-import { Component, input, signal, OnInit, OnDestroy } from '@angular/core';
+import { Component } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { NgClass } from '@angular/common';
-
-interface HeroStat {
-  label: string;
-  value: number;
-  suffix: string;
-  icon: string;
-}
 
 @Component({
   selector: 'ft-hero-section',
   standalone: true,
-  imports: [RouterLink, NgClass],
+  imports: [RouterLink],
   template: `
     <section class="relative min-h-screen flex items-center overflow-hidden particle-bg">
 
@@ -69,18 +61,6 @@ interface HeroStat {
             </a>
           </div>
 
-          <!-- Stats -->
-          <div class="grid grid-cols-2 md:grid-cols-4 gap-4 animate-fade-up" style="animation-delay: 0.4s;">
-            @for (stat of stats; track stat.label) {
-              <div class="glass-card p-5 text-center">
-                <div class="text-3xl mb-2">{{ stat.icon }}</div>
-                <div class="text-2xl md:text-3xl font-black text-white font-display mb-1 gradient-text-blue">
-                  {{ animatedValues[stats.indexOf(stat)] }}{{ stat.suffix }}
-                </div>
-                <div class="text-xs text-gray-400 font-medium uppercase tracking-wide">{{ stat.label }}</div>
-              </div>
-            }
-          </div>
         </div>
 
         <!-- Scroll indicator -->
@@ -92,63 +72,4 @@ interface HeroStat {
     </section>
   `,
 })
-export class HeroSectionComponent implements OnInit, OnDestroy {
-  readonly stats: HeroStat[] = [
-    { label: 'Eventos publicados', value: 150, suffix: '+', icon: '🎪' },
-    { label: 'Entradas vendidas', value: 50000, suffix: '+', icon: '🎫' },
-    { label: 'Usuarios registrados', value: 25000, suffix: '+', icon: '👥' },
-    { label: 'Visitas mensuales', value: 500000, suffix: '+', icon: '👁️' },
-  ];
-
-  animatedValues: string[] = ['0', '0', '0', '0'];
-  private animationFrames: number[] = [];
-  private timeoutIds: ReturnType<typeof setTimeout>[] = [];
-  private destroyed = false;
-
-  ngOnInit(): void {
-    this.stats.forEach((stat, index) => {
-      const id = setTimeout(() => {
-        if (!this.destroyed) {
-          this.animateCounter(stat.value, index);
-        }
-      }, index * 200);
-      this.timeoutIds.push(id);
-    });
-  }
-
-  ngOnDestroy(): void {
-    this.destroyed = true;
-    this.timeoutIds.forEach(id => clearTimeout(id));
-    this.animationFrames.forEach(id => cancelAnimationFrame(id));
-    this.timeoutIds = [];
-    this.animationFrames = [];
-  }
-
-  private animateCounter(target: number, index: number): void {
-    const duration = 2000;
-    const start = Date.now();
-
-    const update = () => {
-      if (this.destroyed) return;
-
-      const elapsed = Date.now() - start;
-      const progress = Math.min(elapsed / duration, 1);
-      const eased = 1 - Math.pow(1 - progress, 3);
-      const current = Math.floor(eased * target);
-
-      this.animatedValues[index] = current >= 1000
-        ? (current / 1000).toFixed(current >= 10000 ? 0 : 1) + 'k'
-        : current.toString();
-
-      if (progress < 1) {
-        this.animationFrames[index] = requestAnimationFrame(update);
-      } else {
-        this.animatedValues[index] = target >= 1000
-          ? (target / 1000).toFixed(target >= 10000 ? 0 : 1) + 'k'
-          : target.toString();
-      }
-    };
-
-    this.animationFrames[index] = requestAnimationFrame(update);
-  }
-}
+export class HeroSectionComponent {}

@@ -4,11 +4,8 @@ import { AsyncPipe } from '@angular/common';
 import { Store } from '@ngrx/store';
 import { HeroSectionComponent } from '../../shared/components/hero-section/hero-section.component';
 import { EventCardComponent } from '../../shared/components/event-card/event-card.component';
-import { NewsCardComponent } from '../../shared/components/news-card/news-card.component';
 import { EventsActions } from '../../store/events/events.actions';
-import { BlogActions } from '../../store/blog/blog.actions';
 import { selectFeaturedEvents } from '../../store/events/events.selectors';
-import { selectFeaturedPosts } from '../../store/blog/blog.selectors';
 import { FormsModule } from '@angular/forms';
 
 @Component({
@@ -20,7 +17,6 @@ import { FormsModule } from '@angular/forms';
     FormsModule,
     HeroSectionComponent,
     EventCardComponent,
-    NewsCardComponent,
   ],
   template: `
     <!-- Hero -->
@@ -61,52 +57,6 @@ import { FormsModule } from '@angular/forms';
         <div class="text-center mt-10">
           <a routerLink="/eventos" class="btn-secondary px-8 py-3">
             Ver Todos los Eventos →
-          </a>
-        </div>
-      </div>
-    </section>
-
-    <!-- Why FAN TRIBUTE -->
-    <section class="section bg-black relative overflow-hidden">
-      <div class="absolute inset-0 bg-gradient-hero"></div>
-      <div class="container-custom relative z-10">
-        <div class="section-title mb-16">
-          <span class="subtitle">Por qué elegirnos</span>
-          <h2>La Plataforma <span class="gradient-text">EDM #1</span></h2>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          @for (feature of features; track feature.title) {
-            <div class="glass-card p-6 text-center reveal">
-              <div class="text-4xl mb-4">{{ feature.icon }}</div>
-              <h3 class="text-white font-bold text-lg mb-2 font-display">{{ feature.title }}</h3>
-              <p class="text-gray-400 text-sm leading-relaxed">{{ feature.desc }}</p>
-            </div>
-          }
-        </div>
-      </div>
-    </section>
-
-    <!-- Latest News -->
-    <section class="section bg-dark-blue-800">
-      <div class="container-custom">
-        <div class="section-title mb-12">
-          <span class="subtitle">Últimas Noticias</span>
-          <h2>Blog & <span class="gradient-text">Noticias</span></h2>
-          <p>Mantente al día con todo lo que pasa en el mundo EDM.</p>
-        </div>
-
-        @if (posts$ | async; as posts) {
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            @for (post of posts; track post.id) {
-              <ft-news-card [post]="post" />
-            }
-          </div>
-        }
-
-        <div class="text-center mt-10">
-          <a routerLink="/blog" class="btn-secondary px-8 py-3">
-            Ver Todas las Noticias →
           </a>
         </div>
       </div>
@@ -160,22 +110,13 @@ export class HomeComponent implements OnInit, OnDestroy {
   private readonly store = inject(Store);
 
   featuredEvents$ = this.store.select(selectFeaturedEvents);
-  posts$ = this.store.select(selectFeaturedPosts);
 
   newsletterEmail = '';
   newsletterSuccess = signal(false);
   private newsletterTimerId: ReturnType<typeof setTimeout> | null = null;
 
-  readonly features = [
-    { icon: '🎫', title: 'Entradas Seguras', desc: 'Compra con confianza. Pagos seguros con SSL y múltiples métodos de pago.' },
-    { icon: '⚡', title: 'Acceso Instantáneo', desc: 'Recibe tus tickets digitales inmediatamente después de comprar.' },
-    { icon: '🌍', title: 'Eventos Globales', desc: 'Los mejores festivales de Colombia, LATAM y el mundo en un solo lugar.' },
-    { icon: '🎵', title: 'Comunidad EDM', desc: 'Conecta con miles de fans, sigue tus artistas favoritos y comparte experiencias.' },
-  ];
-
   ngOnInit(): void {
     this.store.dispatch(EventsActions.loadFeaturedEvents());
-    this.store.dispatch(BlogActions.loadFeaturedPosts());
   }
 
   ngOnDestroy(): void {

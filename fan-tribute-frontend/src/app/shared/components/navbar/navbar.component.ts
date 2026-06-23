@@ -198,7 +198,6 @@ export class NavbarComponent implements OnInit {
   readonly navLinks = [
     { path: '/',         label: 'Inicio',   exact: true  },
     { path: '/eventos',  label: 'Eventos',  exact: false },
-    { path: '/blog',     label: 'Blog',     exact: false },
     { path: '/nosotros', label: 'Nosotros', exact: false },
     { path: '/contacto', label: 'Contacto', exact: false },
   ];
