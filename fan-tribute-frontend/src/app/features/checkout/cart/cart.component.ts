@@ -1,7 +1,9 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { CommonModule, CurrencyPipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { Store } from '@ngrx/store';
+import { Actions, ofType } from '@ngrx/effects';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CartService } from '../../../core/services/cart.service';
 import { CartActions } from '../../../store/cart/cart.actions';
 
@@ -58,9 +60,13 @@ import { CartActions } from '../../../store/cart/cart.actions';
                 <span class="text-electric-blue">{{ cartService.total() | currency:'COP':'symbol-narrow':'1.0-0' }}</span>
               </div>
             </div>
-            <a routerLink="/checkout/pago" class="btn-primary w-full text-center block">
-              Proceder al pago
-            </a>
+            <button
+              (click)="proceedToPayment()"
+              [disabled]="creatingOrder()"
+              class="btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              @if (creatingOrder()) { Preparando orden... } @else { Proceder al pago }
+            </button>
           </div>
         }
       </div>
@@ -69,7 +75,22 @@ import { CartActions } from '../../../store/cart/cart.actions';
 })
 export class CartComponent {
   private readonly store = inject(Store);
+  private readonly actions$ = inject(Actions);
   readonly cartService = inject(CartService);
+  creatingOrder = signal(false);
+
+  constructor() {
+    // Reset loading on success or failure
+    this.actions$.pipe(
+      ofType(CartActions.createOrderSuccess, CartActions.createOrderFailure),
+      takeUntilDestroyed(),
+    ).subscribe(() => this.creatingOrder.set(false));
+  }
+
+  proceedToPayment(): void {
+    this.creatingOrder.set(true);
+    this.store.dispatch(CartActions.createOrder());
+  }
 
   increment(tierId: string): void {
     const item = this.cartService.items().find(i => i.tierId === tierId);

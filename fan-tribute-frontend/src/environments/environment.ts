@@ -1,18 +1,35 @@
 export const environment = {
   production: false,
-  apiUrl: 'http://localhost:3001/v1',
-  wsUrl: 'http://localhost:3001',
+  apiUrl: 'http://localhost:3000/v1',
+  wsUrl: 'http://localhost:3000',
   googleMapsApiKey: 'YOUR_GOOGLE_MAPS_API_KEY',
   stripePublicKey: 'pk_test_YOUR_STRIPE_PUBLIC_KEY',
   wompiPublicKey: 'pub_test_YOUR_WOMPI_KEY',
   firebaseConfig: {
-    apiKey: 'YOUR_FIREBASE_API_KEY',
-    authDomain: 'fan-tribute-app.firebaseapp.com',
-    projectId: 'fan-tribute-app',
-    storageBucket: 'fan-tribute-app.appspot.com',
-    messagingSenderId: 'YOUR_MESSAGING_SENDER_ID',
-    appId: 'YOUR_APP_ID',
-    measurementId: 'G-YOUR_GA4_ID',
+    apiKey: 'AIzaSyCaMpfoBL0SP_pzmSPlvTSVEYZSnbekntE',
+    authDomain: 'fan-tribute.firebaseapp.com',
+    projectId: 'fan-tribute',
+    storageBucket: 'fan-tribute.firebasestorage.app',
+    messagingSenderId: '1093870628885',
+    appId: '1:1093870628885:web:75a79c087b5d5555d91e1c',
+    measurementId: 'G-3VNLZV4SZF',
   },
-  ga4MeasurementId: 'G-YOUR_GA4_ID',
+  ga4MeasurementId: 'G-3VNLZV4SZF',
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

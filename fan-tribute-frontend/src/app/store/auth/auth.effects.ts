@@ -29,8 +29,9 @@ export class AuthEffects {
     this.actions$.pipe(
       ofType(AuthActions.loginSuccess),
       tap(() => {
-        this.notification.success('¡Bienvenido de vuelta! 🎵');
-        this.router.navigate(['/']);
+        this.router.navigate(['/']).then(() => {
+          setTimeout(() => this.notification.success('¡Bienvenido de vuelta! 🎵'), 600);
+        });
       })
     ),
     { dispatch: false }
@@ -52,8 +53,9 @@ export class AuthEffects {
     this.actions$.pipe(
       ofType(AuthActions.registerSuccess),
       tap(() => {
-        this.notification.success('¡Cuenta creada! Verifica tu correo 📧');
-        this.router.navigate(['/']);
+        this.router.navigate(['/']).then(() => {
+          setTimeout(() => this.notification.success('¡Cuenta creada! Verifica tu correo 📧'), 600);
+        });
       })
     ),
     { dispatch: false }

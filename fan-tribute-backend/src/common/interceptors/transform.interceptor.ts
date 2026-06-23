@@ -7,7 +7,7 @@ export class TransformInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     const request = context.switchToHttp().getRequest();
     // Don't wrap webhooks or file downloads
-    if (request.url?.includes('/webhook') || request.url?.includes('/pdf')) {
+    if (request.url?.includes('/webhook') || request.url?.includes('/pdf') || request.url?.includes('/return/')) {
       return next.handle();
     }
     return next.handle().pipe(

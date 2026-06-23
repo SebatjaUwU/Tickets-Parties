@@ -12,6 +12,7 @@ export class User {
   @Column() firstName: string;
   @Column() lastName: string;
   @Column({ nullable: true }) phone: string;
+  @Column({ nullable: true }) cedula: string;
   @Column({ nullable: true }) avatarUrl: string;
   @Column({ nullable: true }) bio: string;
   @Column({ nullable: true }) country: string;
