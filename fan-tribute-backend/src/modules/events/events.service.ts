@@ -11,8 +11,26 @@ export class EventsService {
     @InjectRepository(TicketTier) private readonly tierRepo: Repository<TicketTier>,
   ) {}
 
+  private mapEvent(e: Event) {
+    return {
+      ...e,
+      startDate: e.date,
+      genres: e.genre ? [e.genre] : [],
+      gallery: [],
+      isFeatured: e.featured,
+      isInternational: e.country !== 'Colombia',
+      totalCapacity: e.capacity,
+      ticketsSold: 0,
+      totalRevenue: 0,
+      viewsCount: 0,
+      likesCount: 0,
+      artists: [],
+    };
+  }
+
   async findAll(filters?: any) {
-    const { search, city, genre, page = 1, limit = 10 } = filters || {};
+    const { search, city, genre, page = 1 } = filters || {};
+    const limit = Math.min(+(filters?.limit ?? 10), 100);
     const where: any = { status: 'published' };
     if (city) where.city = ILike(`%${city}%`);
     if (genre) where.genre = ILike(`%${genre}%`);
@@ -24,21 +42,23 @@ export class EventsService {
       take: limit,
     });
     const totalPages = Math.ceil(total / limit);
-    return { data, total, page: +page, limit: +limit, totalPages, hasNext: page < totalPages, hasPrev: page > 1 };
+    return { data: data.map(e => this.mapEvent(e)), total, page: +page, limit: +limit, totalPages, hasNext: +page < totalPages, hasPrev: +page > 1 };
   }
 
   async getFeatured() {
-    return this.eventRepo.find({ where: { featured: true, status: 'published' }, order: { date: 'ASC' }, take: 6 });
+    const events = await this.eventRepo.find({ where: { featured: true, status: 'published' }, order: { date: 'ASC' }, take: 6 });
+    return events.map(e => this.mapEvent(e));
   }
 
   async getUpcoming() {
-    return this.eventRepo.find({ where: { status: 'published' }, order: { date: 'ASC' }, take: 10 });
+    const events = await this.eventRepo.find({ where: { status: 'published' }, order: { date: 'ASC' }, take: 10 });
+    return events.map(e => this.mapEvent(e));
   }
 
   async findBySlug(slug: string) {
     const event = await this.eventRepo.findOne({ where: { slug } });
     if (!event) throw new NotFoundException('Evento no encontrado');
-    return event;
+    return this.mapEvent(event);
   }
 
   async getArtists(eventId: string) { return []; }
@@ -48,7 +68,25 @@ export class EventsService {
   async getStats(eventId: string, user: any) { return { sold: 0, revenue: 0 }; }
 
   async create(data: any, userId: string) {
-    return this.eventRepo.save(this.eventRepo.create({ ...data, status: 'draft' }));
+    const slug = await this.generateSlug(data.title);
+    const partial: Partial<Event> = { ...data, slug, status: 'draft' };
+    const entity = this.eventRepo.create(partial as Event);
+    const saved = await this.eventRepo.save(entity);
+    return this.mapEvent(saved as Event);
+  }
+
+  private async generateSlug(title: string): Promise<string> {
+    const base = title
+      .toLowerCase()
+      .normalize('NFD').replace(/[̀-ͯ]/g, '')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-|-$/g, '');
+    let slug = base;
+    let counter = 1;
+    while (await this.eventRepo.findOne({ where: { slug } })) {
+      slug = `${base}-${counter++}`;
+    }
+    return slug;
   }
 
   async update(id: string, data: any, user?: any) {

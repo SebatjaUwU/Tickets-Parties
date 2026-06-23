@@ -46,12 +46,7 @@ interface HeroStat {
           </div>
 
           <!-- Main title -->
-          <h1 class="font-display font-black text-white leading-tight mb-6 animate-fade-up" style="font-size: clamp(2.5rem, 8vw, 6rem); animation-delay: 0.1s;">
-            TU PASIÓN
-            <span class="block">POR LA</span>
-            <span class="block gradient-text neon-blue">MÚSICA</span>
-            <span class="block text-edm-orange-500 neon-orange">ELECTRÓNICA</span>
-          </h1>
+       
 
           <!-- Subtitle -->
           <p class="text-gray-300 text-lg md:text-xl max-w-2xl mx-auto mb-10 animate-fade-up leading-relaxed" style="animation-delay: 0.2s;">
@@ -107,15 +102,26 @@ export class HeroSectionComponent implements OnInit, OnDestroy {
 
   animatedValues: string[] = ['0', '0', '0', '0'];
   private animationFrames: number[] = [];
+  private timeoutIds: ReturnType<typeof setTimeout>[] = [];
+  private destroyed = false;
 
   ngOnInit(): void {
     this.stats.forEach((stat, index) => {
-      this.animateCounter(stat.value, index);
+      const id = setTimeout(() => {
+        if (!this.destroyed) {
+          this.animateCounter(stat.value, index);
+        }
+      }, index * 200);
+      this.timeoutIds.push(id);
     });
   }
 
   ngOnDestroy(): void {
-    this.animationFrames.forEach(frame => cancelAnimationFrame(frame));
+    this.destroyed = true;
+    this.timeoutIds.forEach(id => clearTimeout(id));
+    this.animationFrames.forEach(id => cancelAnimationFrame(id));
+    this.timeoutIds = [];
+    this.animationFrames = [];
   }
 
   private animateCounter(target: number, index: number): void {
@@ -123,6 +129,8 @@ export class HeroSectionComponent implements OnInit, OnDestroy {
     const start = Date.now();
 
     const update = () => {
+      if (this.destroyed) return;
+
       const elapsed = Date.now() - start;
       const progress = Math.min(elapsed / duration, 1);
       const eased = 1 - Math.pow(1 - progress, 3);
@@ -141,8 +149,6 @@ export class HeroSectionComponent implements OnInit, OnDestroy {
       }
     };
 
-    setTimeout(() => {
-      this.animationFrames[index] = requestAnimationFrame(update);
-    }, index * 200);
+    this.animationFrames[index] = requestAnimationFrame(update);
   }
 }

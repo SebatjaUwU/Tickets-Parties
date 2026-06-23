@@ -14,8 +14,14 @@ export class FirebaseAdminService {
     try {
       const admin = await import('firebase-admin');
       if (!admin.apps.length) {
+        const privateKey = this.config.get<string>('FIREBASE_PRIVATE_KEY', '')
+          .replace(/\\n/g, '\n');
         this.app = admin.initializeApp({
-          projectId: this.config.get('FIREBASE_PROJECT_ID'),
+          credential: admin.credential.cert({
+            projectId: this.config.get('FIREBASE_PROJECT_ID'),
+            clientEmail: this.config.get('FIREBASE_CLIENT_EMAIL'),
+            privateKey,
+          }),
         });
       } else {
         this.app = admin.apps[0];

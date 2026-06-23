@@ -242,7 +242,10 @@ export class OverviewComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.socket?.off('analytics:realtime');
+    this.socket?.off('payment:confirmed');
     this.socket?.disconnect();
+    this.socket = undefined;
   }
 
   private connectWebSocket(): void {
@@ -275,8 +278,43 @@ export class OverviewComponent implements OnInit, OnDestroy {
   private loadDashboard(): void {
     this.http.get<DashboardOverview>(`${environment.apiUrl}/analytics/overview`).subscribe({
       next: (data) => {
-        // Populate from real API when available
+        this.kpis.update(kpis => [
+          { ...kpis[0], value: data.totalSalesToday },
+          { ...kpis[1], value: data.totalSalesMonth },
+          { ...kpis[2], value: data.ticketsSold },
+          { ...kpis[3], value: data.totalUsers },
+          { ...kpis[4], value: data.activeEvents },
+          { ...kpis[5], value: data.conversionRate / 100 },
+          { ...kpis[6], value: data.avgTicketPrice },
+          { ...kpis[7], value: data.onlineUsers },
+        ]);
+
+        if (data.salesByDay?.length) {
+          const max = Math.max(...data.salesByDay.map(d => d.total), 1);
+          const days = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+          this.chartBars.set(
+            data.salesByDay.slice(-7).map(d => ({
+              height: Math.round((d.total / max) * 100),
+              label: days[new Date(d.date).getDay()],
+              value: d.total,
+            }))
+          );
+        }
+
+        if (data.topEvents?.length) {
+          const maxSales = Math.max(...data.topEvents.map(e => e.sales), 1);
+          this.topEvents.set(
+            data.topEvents.slice(0, 3).map(e => ({
+              id: e.event.id,
+              title: e.event.title,
+              sold: e.sales,
+              revenue: e.revenue,
+              percent: Math.round((e.sales / maxSales) * 100),
+            }))
+          );
+        }
       },
+      error: () => { /* keep mock data on error */ },
     });
   }
 }

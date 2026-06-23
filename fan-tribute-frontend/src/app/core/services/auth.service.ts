@@ -73,6 +73,8 @@ export class AuthService {
 
   private handleAuthSuccess(tokens: AuthTokens): void {
     this.tokenService.setTokens(tokens);
-    this.loadCurrentUser().subscribe();
+    this.loadCurrentUser().subscribe({
+      error: () => this.tokenService.clearTokens(),
+    });
   }
 }

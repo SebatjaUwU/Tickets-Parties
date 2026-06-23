@@ -35,8 +35,8 @@ export class CartEffects {
     this.actions$.pipe(
       ofType(CartActions.createOrderSuccess),
       tap(({ orderId }) => {
-        this.store.dispatch(CartActions.clearCart());
-        this.router.navigate(['/checkout/confirmacion', orderId]);
+        // Navigate to payment with the orderId — cart is cleared after payment succeeds
+        this.router.navigate(['/checkout/pago'], { queryParams: { orderId } });
       })
     ),
     { dispatch: false }

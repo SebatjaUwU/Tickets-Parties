@@ -20,7 +20,8 @@ export interface RegisterDto {
   lastName: string;
   email: string;
   password: string;
-  phone?: string;
+  cedula: string;
+  phone: string;
   referralCode?: string;
 }
 

@@ -1,4 +1,4 @@
-import { ApplicationConfig, provideZoneChangeDetection, isDevMode } from '@angular/core';
+import { ApplicationConfig, provideZoneChangeDetection, isDevMode, APP_INITIALIZER, inject } from '@angular/core';
 import { provideRouter, withComponentInputBinding, withViewTransitions, withInMemoryScrolling } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
@@ -7,6 +7,11 @@ import { provideStore } from '@ngrx/store';
 import { provideEffects } from '@ngrx/effects';
 import { provideRouterStore } from '@ngrx/router-store';
 import { provideStoreDevtools } from '@ngrx/store-devtools';
+import { initializeApp } from 'firebase/app';
+import { environment } from '../environments/environment';
+import { AuthService } from './core/services/auth.service';
+import { TokenService } from './core/services/token.service';
+import { catchError, of } from 'rxjs';
 
 import { routes } from './app.routes';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
@@ -25,6 +30,18 @@ import { EventsEffects } from './store/events/events.effects';
 import { ArtistsEffects } from './store/artists/artists.effects';
 import { BlogEffects } from './store/blog/blog.effects';
 import { CartEffects } from './store/cart/cart.effects';
+
+// Initialize Firebase once at app startup
+initializeApp(environment.firebaseConfig);
+
+function restoreSessionFactory(authService: AuthService, tokenService: TokenService) {
+  return () => {
+    if (tokenService.isAccessTokenValid()) {
+      return authService.loadCurrentUser().pipe(catchError(() => of(null)));
+    }
+    return of(null);
+  };
+}
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -50,6 +67,14 @@ export const appConfig: ApplicationConfig = {
     ),
 
     provideAnimationsAsync(),
+
+    // Restore session on app start
+    {
+      provide: APP_INITIALIZER,
+      useFactory: restoreSessionFactory,
+      deps: [AuthService, TokenService],
+      multi: true,
+    },
 
     // NgRx Store
     provideStore({

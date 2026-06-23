@@ -1,8 +1,10 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit, effect } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../../core/services/auth.service';
 import { NotificationService } from '../../core/services/notification.service';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-profile',
@@ -65,8 +67,8 @@ import { NotificationService } from '../../core/services/notification.service';
                   class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-electric-blue transition-colors"
                 />
               </div>
-              <button type="submit" [disabled]="form.invalid || form.pristine" class="btn-primary disabled:opacity-50">
-                Guardar cambios
+              <button type="submit" [disabled]="form.invalid || form.pristine || saving" class="btn-primary disabled:opacity-50 disabled:cursor-not-allowed">
+                @if (saving) { Guardando... } @else { Guardar cambios }
               </button>
             </form>
           </div>
@@ -76,21 +78,50 @@ import { NotificationService } from '../../core/services/notification.service';
     </section>
   `,
 })
-export class ProfileComponent {
+export class ProfileComponent implements OnInit {
   private readonly authService = inject(AuthService);
+  private readonly http = inject(HttpClient);
   private readonly fb = inject(FormBuilder);
   private readonly notify = inject(NotificationService);
 
   user = this.authService.currentUser;
+  saving = false;
 
   form = this.fb.group({
-    fullName: [this.user()?.fullName ?? '', [Validators.required, Validators.minLength(2)]],
-    phone: [this.user()?.phone ?? ''],
-    city: [this.user()?.city ?? ''],
+    fullName: ['', [Validators.required, Validators.minLength(2)]],
+    phone: [''],
+    city:  [''],
   });
 
+  constructor() {
+    // Sync form when user signal resolves (handles async load on F5)
+    effect(() => {
+      const u = this.user();
+      if (u && this.form.pristine) {
+        this.form.patchValue({
+          fullName: u.fullName ?? `${u.firstName} ${u.lastName}`.trim(),
+          phone:    u.phone ?? '',
+          city:     u.city  ?? '',
+        }, { emitEvent: false });
+      }
+    });
+  }
+
+  ngOnInit(): void {}
+
   onSave(): void {
-    this.notify.success('Perfil actualizado correctamente.');
-    this.form.markAsPristine();
+    if (this.form.invalid || this.saving) return;
+    this.saving = true;
+    this.http.put(`${environment.apiUrl}/users/me`, this.form.value).subscribe({
+      next: () => {
+        this.saving = false;
+        this.notify.success('Perfil actualizado correctamente.');
+        this.form.markAsPristine();
+      },
+      error: () => {
+        this.saving = false;
+        this.notify.error('No se pudo actualizar el perfil. Inténtalo de nuevo.');
+      },
+    });
   }
 }

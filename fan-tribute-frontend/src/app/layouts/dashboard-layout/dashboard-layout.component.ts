@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, computed } from '@angular/core';
 import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 import { NgClass } from '@angular/common';
 import { AuthService } from '../../core/services/auth.service';
@@ -76,10 +76,19 @@ interface NavItem {
             }
           </a>
           <div class="flex items-center gap-3 px-3 py-2">
-            <img
-              [src]="authService.currentUser()?.avatarUrl ?? 'assets/images/avatar-default.png'"
-              class="w-8 h-8 rounded-lg object-cover flex-shrink-0"
-            />
+            @if (authService.currentUser()?.avatarUrl) {
+              <img
+                [src]="authService.currentUser()!.avatarUrl!"
+                class="w-8 h-8 rounded-lg object-cover flex-shrink-0 ring-2 ring-electric-blue-500/30"
+              />
+            } @else {
+              <div
+                class="w-8 h-8 rounded-lg flex items-center justify-center font-bold text-xs text-white flex-shrink-0 ring-2 ring-electric-blue-500/30"
+                [style.background]="avatarGradient()"
+              >
+                {{ userInitials() }}
+              </div>
+            }
             @if (sidebarOpen()) {
               <div class="animate-fade-in min-w-0">
                 <p class="text-white text-xs font-semibold truncate">{{ authService.currentUser()?.firstName }}</p>
@@ -116,6 +125,21 @@ interface NavItem {
 export class DashboardLayoutComponent {
   readonly authService = inject(AuthService);
   sidebarOpen = signal(true);
+
+  userInitials = computed(() => {
+    const user = this.authService.currentUser();
+    if (!user) return '?';
+    const f = user.firstName?.[0]?.toUpperCase() ?? '';
+    const l = user.lastName?.[0]?.toUpperCase()  ?? '';
+    return (f + l) || (user.email?.[0]?.toUpperCase() ?? '?');
+  });
+
+  avatarGradient = computed(() => {
+    const user = this.authService.currentUser();
+    const seed = user?.id ?? user?.email ?? 'default';
+    const hue  = [...seed].reduce((acc, c) => acc + c.charCodeAt(0), 0) % 360;
+    return `linear-gradient(135deg, hsl(${hue},70%,40%), hsl(${(hue + 60) % 360},70%,30%))`;
+  });
 
   toggleSidebar(): void {
     this.sidebarOpen.set(!this.sidebarOpen());

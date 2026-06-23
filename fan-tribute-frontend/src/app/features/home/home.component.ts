@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { AsyncPipe } from '@angular/common';
 import { Store } from '@ngrx/store';
@@ -156,7 +156,7 @@ import { FormsModule } from '@angular/forms';
     </section>
   `,
 })
-export class HomeComponent implements OnInit {
+export class HomeComponent implements OnInit, OnDestroy {
   private readonly store = inject(Store);
 
   featuredEvents$ = this.store.select(selectFeaturedEvents);
@@ -164,6 +164,7 @@ export class HomeComponent implements OnInit {
 
   newsletterEmail = '';
   newsletterSuccess = signal(false);
+  private newsletterTimerId: ReturnType<typeof setTimeout> | null = null;
 
   readonly features = [
     { icon: '🎫', title: 'Entradas Seguras', desc: 'Compra con confianza. Pagos seguros con SSL y múltiples métodos de pago.' },
@@ -177,15 +178,24 @@ export class HomeComponent implements OnInit {
     this.store.dispatch(BlogActions.loadFeaturedPosts());
   }
 
+  ngOnDestroy(): void {
+    if (this.newsletterTimerId !== null) {
+      clearTimeout(this.newsletterTimerId);
+    }
+  }
+
   onFavoriteToggle(eventId: string): void {
     this.store.dispatch(EventsActions.toggleFavorite({ eventId }));
   }
 
   onNewsletterSubmit(): void {
     if (!this.newsletterEmail) return;
-    // dispatch newsletter action
+    if (this.newsletterTimerId !== null) clearTimeout(this.newsletterTimerId);
     this.newsletterSuccess.set(true);
     this.newsletterEmail = '';
-    setTimeout(() => this.newsletterSuccess.set(false), 5000);
+    this.newsletterTimerId = setTimeout(() => {
+      this.newsletterSuccess.set(false);
+      this.newsletterTimerId = null;
+    }, 5000);
   }
 }

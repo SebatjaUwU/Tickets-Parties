@@ -55,8 +55,12 @@ export class AuthService {
 
     await this.userRepo.save(user);
 
-    // Send verification email
-    await this.notificationsService.sendVerificationEmail(user);
+    // Generate short-lived JWT for email verification (24h)
+    const verificationToken = this.jwtService.sign(
+      { sub: user.id, type: 'email-verify' },
+      { secret: this.config.get<string>('JWT_SECRET'), expiresIn: '24h' },
+    );
+    await this.notificationsService.sendVerificationEmail(user, verificationToken);
 
     // Award referral points
     if (referredBy) {
@@ -169,8 +173,21 @@ export class AuthService {
   }
 
   async verifyEmail(token: string): Promise<void> {
-    // Token verification logic (stored in cache or DB)
-    throw new BadRequestException('Token inválido');
+    let payload: any;
+    try {
+      payload = this.jwtService.verify(token, {
+        secret: this.config.get<string>('JWT_SECRET'),
+      });
+    } catch {
+      throw new BadRequestException('Token de verificación inválido o expirado');
+    }
+    if (payload.type !== 'email-verify') {
+      throw new BadRequestException('Token inválido');
+    }
+    const user = await this.userRepo.findOne({ where: { id: payload.sub } });
+    if (!user) throw new BadRequestException('Usuario no encontrado');
+    if (user.emailVerified) return; // ya verificado, no hacer nada
+    await this.userRepo.update(user.id, { emailVerified: true, status: UserStatus.ACTIVE });
   }
 
   async enable2FA(userId: string): Promise<{ secret: string; qrCode: string }> {
