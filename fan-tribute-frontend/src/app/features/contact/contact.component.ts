@@ -161,6 +161,7 @@ export class ContactComponent {
       {
         from_name:    v.name,
         from_email:   v.email,
+        reply_to:     v.email,
         subject:      v.subject,
         message:      v.message,
         to_email:     APP_CONFIG.email,
