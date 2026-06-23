@@ -1,22 +1,14 @@
 import { Component } from '@angular/core';
-import { NgClass, DecimalPipe } from '@angular/common';
 
-const MERCH_FORM_URL = 'https://forms.google.com/PLACEHOLDER';
-
-interface MerchItem {
-  id: number;
-  name: string;
-  description: string;
-  price: number;
-  category: string;
-  image: string;
-  badge?: string;
-}
+// Reemplaza con tu número de WhatsApp (formato internacional, sin +)
+const WHATSAPP_NUMBER = '57XXXXXXXXXX';
+const WHATSAPP_MESSAGE = encodeURIComponent('Hola! Me interesa la Camiseta EDM Summer de FAN TRIBUTE 👕');
+const WHATSAPP_URL = `https://wa.me/${WHATSAPP_NUMBER}?text=${WHATSAPP_MESSAGE}`;
 
 @Component({
   selector: 'ft-merch',
   standalone: true,
-  imports: [NgClass, DecimalPipe],
+  imports: [],
   template: `
     <!-- Hero -->
     <section class="relative py-24 overflow-hidden bg-black">
@@ -33,206 +25,87 @@ interface MerchItem {
           FAN TRIBUTE <span class="gradient-text">MERCH</span>
         </h1>
         <p class="text-gray-300 text-lg max-w-xl mx-auto">
-          Representa la cultura EDM con nuestra colección exclusiva. Ropa y accesorios para los verdaderos fans.
+          Representa la cultura EDM con nuestra colección exclusiva.
         </p>
       </div>
     </section>
 
-    <!-- Filter tabs -->
-    <section class="bg-dark-blue-800 border-b border-white/5 sticky top-[4.5rem] z-30">
-      <div class="container-custom">
-        <div class="flex items-center gap-2 overflow-x-auto py-3 scrollbar-hide">
-          @for (cat of categories; track cat) {
-            <button
-              (click)="activeCategory = cat"
-              class="px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all duration-200 flex-shrink-0"
-              [ngClass]="activeCategory === cat
-                ? 'bg-electric-blue-500 text-white shadow-glow-blue'
-                : 'glass text-gray-400 hover:text-white hover:bg-white/10'"
-            >
-              {{ cat }}
-            </button>
-          }
-        </div>
-      </div>
-    </section>
-
-    <!-- Products grid -->
+    <!-- Product -->
     <section class="section bg-gradient-to-b from-dark-blue-800 to-black">
       <div class="container-custom">
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          @for (item of filteredItems(); track item.id) {
-            <article class="glass-card overflow-hidden group">
-              <!-- Image -->
-              <div class="relative aspect-square overflow-hidden bg-dark-blue-800">
+        <div class="max-w-4xl mx-auto">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
+
+            <!-- Image -->
+            <div class="relative">
+              <div class="aspect-square rounded-3xl overflow-hidden bg-dark-blue-800 border border-white/10">
                 <img
-                  [src]="item.image"
-                  [alt]="item.name"
-                  class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  src="assets/images/merch-placeholder.jpg"
+                  alt="Camiseta EDM Summer"
+                  class="w-full h-full object-cover"
                 />
-                <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                @if (item.badge) {
-                  <span class="absolute top-3 left-3 badge badge-orange text-xs">{{ item.badge }}</span>
-                }
-                <!-- Quick order overlay -->
-                <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                  <a
-                    [href]="formUrl"
-                    target="_blank"
-                    rel="noopener"
-                    class="btn-primary text-sm px-5 py-2.5 shadow-glow-blue"
-                  >
-                    Ordenar ahora
-                  </a>
-                </div>
+              </div>
+              <span class="absolute top-4 left-4 badge badge-orange text-sm px-3 py-1">Edición Limitada</span>
+            </div>
+
+            <!-- Details -->
+            <div class="space-y-6">
+              <div>
+                <span class="text-electric-blue-400 text-sm font-semibold uppercase tracking-wider">Ropa</span>
+                <h2 class="text-4xl font-black text-white font-display mt-1 mb-3">Camiseta EDM Summer</h2>
+                <p class="text-gray-300 leading-relaxed">
+                  Camiseta oficial del EDM Summer Event. 100% algodón premium, corte unisex. Disponible en tallas S, M, L y XL.
+                </p>
               </div>
 
-              <!-- Info -->
-              <div class="p-4">
-                <span class="text-xs text-electric-blue-400 font-semibold uppercase tracking-wider">{{ item.category }}</span>
-                <h3 class="text-white font-bold mt-1 mb-1 font-display">{{ item.name }}</h3>
-                <p class="text-gray-400 text-xs mb-3 line-clamp-2">{{ item.description }}</p>
-                <div class="flex items-center justify-between">
-                  <span class="text-white font-black text-xl font-display">
-                    {{ item.price | number:'1.0-0' }}<span class="text-gray-400 text-sm font-normal"> COP</span>
-                  </span>
-                  <a
-                    [href]="formUrl"
-                    target="_blank"
-                    rel="noopener"
-                    class="btn-primary text-xs px-4 py-2"
-                  >
-                    Pedir
-                  </a>
-                </div>
+              <!-- Price -->
+              <div class="glass-dark rounded-2xl p-4 border border-electric-blue-500/20">
+                <p class="text-gray-400 text-sm mb-1">Precio</p>
+                <p class="text-3xl font-black text-white font-display">75.000 <span class="text-lg text-gray-400 font-normal">COP</span></p>
               </div>
-            </article>
-          }
-        </div>
 
-        <!-- Empty state -->
-        @if (filteredItems().length === 0) {
-          <div class="text-center py-20">
-            <p class="text-5xl mb-4">🛍️</p>
-            <h3 class="text-white font-bold text-xl mb-2">Sin productos en esta categoría</h3>
-            <p class="text-gray-400">Pronto habrá nuevos artículos disponibles.</p>
+              <!-- Features -->
+              <ul class="space-y-2">
+                <li class="flex items-center gap-2 text-gray-300 text-sm">
+                  <svg class="w-4 h-4 text-green-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                  100% algodón premium
+                </li>
+                <li class="flex items-center gap-2 text-gray-300 text-sm">
+                  <svg class="w-4 h-4 text-green-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                  Tallas S, M, L, XL
+                </li>
+                <li class="flex items-center gap-2 text-gray-300 text-sm">
+                  <svg class="w-4 h-4 text-green-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                  Diseño exclusivo EDM Summer Event
+                </li>
+                <li class="flex items-center gap-2 text-gray-300 text-sm">
+                  <svg class="w-4 h-4 text-green-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                  Envío a todo Colombia
+                </li>
+              </ul>
+
+              <!-- WhatsApp CTA -->
+              <a
+                [href]="whatsappUrl"
+                target="_blank"
+                rel="noopener"
+                class="flex items-center justify-center gap-3 w-full py-4 px-6 rounded-2xl bg-green-500 hover:bg-green-400 text-white font-bold text-lg transition-all duration-200 hover:scale-105 shadow-lg"
+              >
+                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+                </svg>
+                Pedir por WhatsApp
+              </a>
+              <p class="text-center text-gray-500 text-xs">
+                Te responderemos en menos de 24 horas.
+              </p>
+            </div>
           </div>
-        }
-      </div>
-    </section>
-
-    <!-- CTA banner -->
-    <section class="section bg-gradient-to-r from-electric-blue-900 via-dark-blue-800 to-edm-orange-900 relative overflow-hidden">
-      <div class="absolute inset-0 opacity-20">
-        <div class="absolute top-0 left-1/3 w-64 h-64 bg-electric-blue-500 rounded-full blur-3xl"></div>
-      </div>
-      <div class="container-custom relative z-10 text-center">
-        <h2 class="text-3xl md:text-4xl font-black text-white font-display mb-4">
-          ¿Quieres un diseño <span class="gradient-text">personalizado?</span>
-        </h2>
-        <p class="text-gray-300 mb-8 max-w-lg mx-auto">
-          Contáctanos y creamos merch exclusivo para tu crew o evento.
-        </p>
-        <a
-          [href]="formUrl"
-          target="_blank"
-          rel="noopener"
-          class="btn-primary px-10 py-4 text-lg font-black"
-        >
-          Hacer pedido personalizado →
-        </a>
+        </div>
       </div>
     </section>
   `,
-  styles: [`
-    .line-clamp-2 {
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
-    .scrollbar-hide::-webkit-scrollbar { display: none; }
-    .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
-  `],
 })
 export class MerchComponent {
-  readonly formUrl = MERCH_FORM_URL;
-  activeCategory = 'Todo';
-
-  readonly categories = ['Todo', 'Ropa', 'Accesorios', 'Coleccionables'];
-
-  readonly items: MerchItem[] = [
-    {
-      id: 1,
-      name: 'Camiseta EDM Summer',
-      description: 'Camiseta oficial del EDM Summer Event. 100% algodón premium, corte unisex.',
-      price: 75000,
-      category: 'Ropa',
-      image: 'assets/images/merch-placeholder.jpg',
-      badge: 'Nuevo',
-    },
-    {
-      id: 2,
-      name: 'Hoodie FAN TRIBUTE',
-      description: 'Sudadera con capucha bordada. Perfecta para las noches de festival.',
-      price: 150000,
-      category: 'Ropa',
-      image: 'assets/images/merch-placeholder.jpg',
-      badge: 'Exclusivo',
-    },
-    {
-      id: 3,
-      name: 'Gorra Snapback',
-      description: 'Gorra ajustable con logo bordado FAN TRIBUTE. Disponible en negro y azul.',
-      price: 60000,
-      category: 'Accesorios',
-      image: 'assets/images/merch-placeholder.jpg',
-    },
-    {
-      id: 4,
-      name: 'Mochila Festival',
-      description: 'Mochila resistente al agua, diseño EDM. Perfecta para llevar al festival.',
-      price: 120000,
-      category: 'Accesorios',
-      image: 'assets/images/merch-placeholder.jpg',
-    },
-    {
-      id: 5,
-      name: 'Camiseta Oversized',
-      description: 'Corte oversized con gráfico EDM en la espalda. Edición limitada.',
-      price: 85000,
-      category: 'Ropa',
-      image: 'assets/images/merch-placeholder.jpg',
-      badge: 'Ed. Limitada',
-    },
-    {
-      id: 6,
-      name: 'Pulsera de Tela',
-      description: 'Pack de 3 pulseras estilo festival. Tejido resistente y lavable.',
-      price: 25000,
-      category: 'Accesorios',
-      image: 'assets/images/merch-placeholder.jpg',
-    },
-    {
-      id: 7,
-      name: 'Poster Coleccionable',
-      description: 'Poster A2 del EDM Summer Event. Impresión de alta calidad para enmarcar.',
-      price: 35000,
-      category: 'Coleccionables',
-      image: 'assets/images/merch-placeholder.jpg',
-    },
-    {
-      id: 8,
-      name: 'Sticker Pack',
-      description: 'Pack de 10 stickers con diseños EDM originales. Resistentes al agua.',
-      price: 15000,
-      category: 'Coleccionables',
-      image: 'assets/images/merch-placeholder.jpg',
-    },
-  ];
-
-  filteredItems(): MerchItem[] {
-    if (this.activeCategory === 'Todo') return this.items;
-    return this.items.filter(i => i.category === this.activeCategory);
-  }
+  readonly whatsappUrl = WHATSAPP_URL;
 }
