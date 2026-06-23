@@ -146,6 +146,16 @@ import { selectAuthLoading, selectAuthError } from '../../../store/auth/auth.sel
             </a>
           </p>
         </div>
+
+        <!-- Contact support -->
+        <div class="mt-6 text-center">
+          <p class="text-gray-500 text-xs">
+            ¿Problemas para acceder? Escríbenos a
+            <a href="mailto:sebatja1234@gmail.com" class="text-electric-blue-400 hover:text-electric-blue-300 transition-colors">
+              sebatja1234&#64;gmail.com
+            </a>
+          </p>
+        </div>
       </div>
     </div>
   `,

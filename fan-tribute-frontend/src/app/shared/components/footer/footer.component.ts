@@ -126,6 +126,7 @@ export class FooterComponent {
       links: [
         { label: 'Inicio', path: '/' },
         { label: 'Eventos', path: '/eventos' },
+        { label: 'Merch', path: '/merch' },
       ],
     },
     {

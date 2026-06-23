@@ -50,6 +50,11 @@ export const routes: Routes = [
         loadComponent: () => import('./features/contact/contact.component').then(m => m.ContactComponent),
         title: 'Contacto | FAN TRIBUTE',
       },
+      {
+        path: 'merch',
+        loadComponent: () => import('./features/merch/merch.component').then(m => m.MerchComponent),
+        title: 'Merch | FAN TRIBUTE',
+      },
       // Protected routes
       {
         path: 'perfil',
