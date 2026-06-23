@@ -4,6 +4,7 @@ import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { NotificationService } from '../../core/services/notification.service';
+import { APP_CONFIG } from '../../core/config/app.config';
 
 @Component({
   selector: 'app-contact',
@@ -118,9 +119,8 @@ export class ContactComponent {
   });
 
   contactInfo = [
-    { icon: '📧', label: 'Email', value: 'hola@fantribute.com' },
-    { icon: '📱', label: 'WhatsApp', value: '+57 300 000 0000' },
-    { icon: '📍', label: 'Ciudad', value: 'Bogotá, Colombia' },
+    { icon: '📧', label: 'Email', value: APP_CONFIG.email },
+    { icon: '📍', label: 'Ciudad', value: APP_CONFIG.city },
   ];
 
   onSubmit(): void {

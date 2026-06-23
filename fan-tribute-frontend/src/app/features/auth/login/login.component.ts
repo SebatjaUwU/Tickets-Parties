@@ -1,4 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
+import { APP_CONFIG } from '../../../core/config/app.config';
 import { FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { NgClass, AsyncPipe } from '@angular/common';
@@ -151,8 +152,8 @@ import { selectAuthLoading, selectAuthError } from '../../../store/auth/auth.sel
         <div class="mt-6 text-center">
           <p class="text-gray-500 text-xs">
             ¿Problemas para acceder? Escríbenos a
-            <a href="mailto:sebatja1234@gmail.com" class="text-electric-blue-400 hover:text-electric-blue-300 transition-colors">
-              sebatja1234&#64;gmail.com
+            <a [href]="'mailto:' + email" class="text-electric-blue-400 hover:text-electric-blue-300 transition-colors">
+              {{ email }}
             </a>
           </p>
         </div>
@@ -163,6 +164,7 @@ import { selectAuthLoading, selectAuthError } from '../../../store/auth/auth.sel
 export class LoginComponent {
   private readonly fb = inject(FormBuilder);
   private readonly store = inject(Store);
+  readonly email = APP_CONFIG.email;
 
   showPassword = signal(false);
   loading$ = this.store.select(selectAuthLoading);

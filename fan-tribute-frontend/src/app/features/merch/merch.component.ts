@@ -1,9 +1,5 @@
 import { Component } from '@angular/core';
-
-// Reemplaza con tu número de WhatsApp (formato internacional, sin +)
-const WHATSAPP_NUMBER = '57XXXXXXXXXX';
-const WHATSAPP_MESSAGE = encodeURIComponent('Hola! Me interesa la Camiseta EDM Summer de FAN TRIBUTE 👕');
-const WHATSAPP_URL = `https://wa.me/${WHATSAPP_NUMBER}?text=${WHATSAPP_MESSAGE}`;
+import { APP_CONFIG, WHATSAPP_URL } from '../../core/config/app.config';
 
 @Component({
   selector: 'ft-merch',
@@ -107,5 +103,5 @@ const WHATSAPP_URL = `https://wa.me/${WHATSAPP_NUMBER}?text=${WHATSAPP_MESSAGE}`
   `,
 })
 export class MerchComponent {
-  readonly whatsappUrl = WHATSAPP_URL;
+  readonly whatsappUrl = WHATSAPP_URL(APP_CONFIG.whatsappMerchMessage);
 }

@@ -1,8 +1,5 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-
-// Registration is handled via Google Forms — this component redirects automatically.
-const GOOGLE_FORM_URL = 'https://forms.google.com/PLACEHOLDER';
+import { Component, OnInit, signal } from '@angular/core';
+import { APP_CONFIG } from '../../../core/config/app.config';
 
 @Component({
   selector: 'app-payment',
@@ -36,9 +33,7 @@ const GOOGLE_FORM_URL = 'https://forms.google.com/PLACEHOLDER';
   `,
 })
 export class PaymentComponent implements OnInit {
-  private readonly route = inject(ActivatedRoute);
-
-  readonly formUrl = GOOGLE_FORM_URL;
+  readonly formUrl = APP_CONFIG.registrationFormUrl;
   redirecting = signal(false);
 
   ngOnInit(): void {

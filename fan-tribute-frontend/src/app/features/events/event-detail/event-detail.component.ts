@@ -1,11 +1,11 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { DatePipe, NgClass, DecimalPipe } from '@angular/common';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { switchMap } from 'rxjs';
 import { EventsService } from '../../../core/services/events.service';
 import { Event } from '../../../shared/models';
-
-const GOOGLE_FORM_URL = 'https://forms.google.com/PLACEHOLDER';
+import { APP_CONFIG, SPOTIFY_EMBED_URL } from '../../../core/config/app.config';
 
 @Component({
   selector: 'ft-event-detail',
@@ -122,7 +122,7 @@ const GOOGLE_FORM_URL = 'https://forms.google.com/PLACEHOLDER';
                 </span>
               </h2>
               <iframe
-                src="https://open.spotify.com/embed/playlist/3TqkQ3ZTP5iKX9Z6ERfLwi?utm_source=generator&theme=0"
+                [src]="spotifyUrl"
                 width="100%"
                 height="352"
                 frameBorder="0"
@@ -203,9 +203,13 @@ const GOOGLE_FORM_URL = 'https://forms.google.com/PLACEHOLDER';
 export class EventDetailComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly eventsService = inject(EventsService);
+  private readonly sanitizer = inject(DomSanitizer);
 
   event = signal<Event | null>(null);
-  readonly formUrl = GOOGLE_FORM_URL;
+  readonly formUrl = APP_CONFIG.registrationFormUrl;
+  readonly spotifyUrl: SafeResourceUrl = this.sanitizer.bypassSecurityTrustResourceUrl(
+    SPOTIFY_EMBED_URL(APP_CONFIG.spotifyPlaylistId)
+  );
 
   ngOnInit(): void {
     this.route.paramMap.pipe(
