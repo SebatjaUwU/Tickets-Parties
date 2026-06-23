@@ -32,16 +32,6 @@ import { RouterLink } from '@angular/router';
           }
         </div>
 
-        <!-- Stats -->
-        <div class="glass rounded-2xl p-10 grid grid-cols-2 md:grid-cols-4 gap-8 text-center mb-20">
-          @for (stat of stats; track stat.label) {
-            <div>
-              <div class="text-4xl font-rajdhani font-black text-electric-blue mb-1">{{ stat.value }}</div>
-              <div class="text-gray-400 text-sm uppercase tracking-wider">{{ stat.label }}</div>
-            </div>
-          }
-        </div>
-
         <!-- CTA -->
         <div class="text-center">
           <h2 class="text-3xl font-rajdhani font-bold text-white mb-4">¿Listo para vivir la experiencia?</h2>
@@ -74,10 +64,4 @@ export class AboutComponent {
     },
   ];
 
-  stats = [
-    { value: '50K+', label: 'Fans' },
-    { value: '200+', label: 'Eventos' },
-    { value: '80+', label: 'Artistas' },
-    { value: '15', label: 'Ciudades' },
-  ];
 }

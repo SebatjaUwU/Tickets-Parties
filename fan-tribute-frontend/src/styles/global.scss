@@ -153,8 +153,9 @@
   // Form Inputs
   .input-field {
     @apply w-full px-4 py-3 rounded-xl text-white placeholder-gray-400 text-sm transition-all duration-300 outline-none;
-    background: $input-bg;
+    background: rgba(10, 31, 68, 0.8);
     border: 1px solid $input-border;
+    color: #ffffff;
 
     &:focus {
       border-color: $color-electric-blue;
@@ -163,6 +164,29 @@
 
     &.error {
       border-color: $color-error;
+    }
+
+    // Fix browser autofill white background
+    &:-webkit-autofill,
+    &:-webkit-autofill:hover,
+    &:-webkit-autofill:focus {
+      -webkit-text-fill-color: #ffffff;
+      -webkit-box-shadow: 0 0 0px 1000px rgba(10, 31, 68, 0.95) inset;
+      transition: background-color 9999s ease-in-out 0s;
+    }
+  }
+
+  // Select elements dark theme
+  select.input-field,
+  select {
+    -webkit-appearance: none;
+    appearance: none;
+    background-color: rgba(10, 31, 68, 0.8);
+    color: #ffffff;
+
+    option {
+      background-color: #0A1F44;
+      color: #ffffff;
     }
   }
 
