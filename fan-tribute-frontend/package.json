@@ -30,6 +30,7 @@
     "@angular/pwa": "^20.0.0",
     "@angular/router": "^20.0.0",
     "@angular/service-worker": "^20.0.0",
+    "@emailjs/browser": "^4.4.1",
     "@ngrx/component-store": "^20.0.0",
     "@ngrx/effects": "^20.0.0",
     "@ngrx/entity": "^20.0.0",

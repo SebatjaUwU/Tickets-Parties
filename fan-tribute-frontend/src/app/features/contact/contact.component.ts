@@ -1,7 +1,17 @@
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
+import emailjs from '@emailjs/browser';
 import { APP_CONFIG } from '../../core/config/app.config';
+
+// ─── EmailJS credentials ─────────────────────────────────────────────────────
+// 1. Regístrate en https://emailjs.com (gratis)
+// 2. Email Services → conecta tu Gmail → copia el Service ID
+// 3. Email Templates → crea plantilla → copia el Template ID
+// 4. Account → API Keys → copia tu Public Key
+const EMAILJS_SERVICE_ID  = 'YOUR_SERVICE_ID';
+const EMAILJS_TEMPLATE_ID = 'YOUR_TEMPLATE_ID';
+const EMAILJS_PUBLIC_KEY  = 'YOUR_PUBLIC_KEY';
 
 @Component({
   selector: 'app-contact',
@@ -73,18 +83,40 @@ import { APP_CONFIG } from '../../core/config/app.config';
 
             @if (sent()) {
               <div class="p-4 rounded-xl bg-green-500/10 border border-green-500/30 text-center">
-                <p class="text-green-400 font-semibold">¡Listo! Se abrirá tu cliente de correo con el mensaje pre-rellenado.</p>
-                <button type="button" (click)="sent.set(false)" class="text-gray-400 text-sm mt-2 hover:text-white transition-colors">
+                <p class="text-green-400 font-semibold text-lg">✅ ¡Mensaje enviado!</p>
+                <p class="text-gray-400 text-sm mt-1">Te responderemos a {{ form.get('email')?.value || 'tu correo' }} pronto.</p>
+                <button type="button" (click)="sent.set(false)" class="text-electric-blue-400 text-sm mt-3 hover:text-white transition-colors">
                   Enviar otro mensaje
                 </button>
               </div>
+            } @else if (error()) {
+              <div class="p-4 rounded-xl bg-red-500/10 border border-red-500/30 text-center mb-4">
+                <p class="text-red-400 text-sm">{{ error() }}</p>
+              </div>
+              <button
+                type="submit"
+                [disabled]="form.invalid || sending()"
+                class="btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Reintentar
+              </button>
             } @else {
               <button
                 type="submit"
-                [disabled]="form.invalid"
+                [disabled]="form.invalid || sending()"
                 class="btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Enviar mensaje
+                @if (sending()) {
+                  <span class="flex items-center justify-center gap-2">
+                    <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+                    </svg>
+                    Enviando...
+                  </span>
+                } @else {
+                  Enviar mensaje
+                }
               </button>
             }
           </form>
@@ -108,11 +140,13 @@ import { APP_CONFIG } from '../../core/config/app.config';
 export class ContactComponent {
   private readonly fb = inject(FormBuilder);
 
-  sent = signal(false);
+  sending = signal(false);
+  sent    = signal(false);
+  error   = signal<string | null>(null);
 
   form = this.fb.group({
-    name: ['', Validators.required],
-    email: ['', Validators.required],
+    name:    ['', Validators.required],
+    email:   ['', Validators.required],
     subject: ['', Validators.required],
     message: ['', Validators.required],
   });
@@ -123,14 +157,30 @@ export class ContactComponent {
   ];
 
   onSubmit(): void {
-    if (this.form.invalid) return;
+    if (this.form.invalid || this.sending()) return;
+    this.sending.set(true);
+    this.error.set(null);
+
     const v = this.form.getRawValue();
-    const subject = encodeURIComponent(`[FAN TRIBUTE] ${v.subject} — de ${v.name}`);
-    const body = encodeURIComponent(
-      `Nombre: ${v.name}\nEmail: ${v.email}\nAsunto: ${v.subject}\n\n${v.message}`
-    );
-    window.location.href = `mailto:${APP_CONFIG.email}?subject=${subject}&body=${body}`;
-    this.sent.set(true);
-    this.form.reset();
+
+    emailjs.send(
+      EMAILJS_SERVICE_ID,
+      EMAILJS_TEMPLATE_ID,
+      {
+        from_name:    v.name,
+        from_email:   v.email,
+        subject:      v.subject,
+        message:      v.message,
+        to_email:     APP_CONFIG.email,
+      },
+      { publicKey: EMAILJS_PUBLIC_KEY }
+    ).then(() => {
+      this.sent.set(true);
+      this.form.reset();
+    }).catch(() => {
+      this.error.set('No se pudo enviar el mensaje. Escríbenos directamente a ' + APP_CONFIG.email);
+    }).finally(() => {
+      this.sending.set(false);
+    });
   }
 }
