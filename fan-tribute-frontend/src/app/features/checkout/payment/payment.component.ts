@@ -1,152 +1,52 @@
-import { Component, inject, signal, OnInit, DestroyRef } from '@angular/core';
-import { CommonModule, CurrencyPipe } from '@angular/common';
-import { ActivatedRoute, Router } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
-import { Store } from '@ngrx/store';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { CartService } from '../../../core/services/cart.service';
-import { CartActions } from '../../../store/cart/cart.actions';
-import { environment } from '../../../../environments/environment';
+import { Component, inject, OnInit, signal } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 
-type PaymentMethod = 'wompi_pse' | 'wompi_nequi' | 'wompi_daviplata';
+// Registration is handled via Google Forms — this component redirects automatically.
+const GOOGLE_FORM_URL = 'https://forms.google.com/PLACEHOLDER';
 
 @Component({
   selector: 'app-payment',
   standalone: true,
-  imports: [CommonModule, CurrencyPipe],
+  imports: [],
   template: `
-    <section class="min-h-screen bg-dark-900 pt-24 pb-16">
-      <div class="container mx-auto px-4 max-w-2xl">
-        <h1 class="text-3xl font-rajdhani font-bold text-white mb-8">Método de pago</h1>
-
-        @if (!orderId()) {
-          <div class="glass-card rounded-2xl p-8 text-center">
-            <p class="text-red-400 text-lg">No se encontró una orden activa.</p>
-            <p class="text-gray-400 text-sm mt-2">Por favor regresa al carrito e intenta de nuevo.</p>
-          </div>
-        } @else {
-          <!-- Order summary -->
-          <div class="glass rounded-2xl p-5 mb-6">
-            <h3 class="text-white font-semibold mb-3">Resumen del pedido</h3>
-            @for (item of cartService.items(); track item.tierId) {
-              <div class="flex justify-between text-sm text-gray-300 py-1">
-                <span>{{ item.eventTitle }} × {{ item.quantity }}</span>
-                <span>{{ item.unitPrice * item.quantity | currency:'COP':'symbol-narrow':'1.0-0' }}</span>
-              </div>
-            }
-            <div class="border-t border-white/10 mt-3 pt-3 flex justify-between font-bold text-white">
-              <span>Total</span>
-              <span class="text-electric-blue">{{ cartService.total() | currency:'COP':'symbol-narrow':'1.0-0' }}</span>
+    <section class="min-h-screen bg-dark-900 pt-24 pb-16 flex items-center justify-center">
+      <div class="container mx-auto px-4 max-w-xl text-center">
+        <div class="glass-card rounded-2xl p-12">
+          <p class="text-5xl mb-6">🎟️</p>
+          <h1 class="text-2xl font-rajdhani font-bold text-white mb-3">Registro de entradas</h1>
+          <p class="text-gray-400 mb-8">
+            Serás redirigido al formulario de registro. Completa tus datos y nos pondremos en contacto contigo para confirmar tu entrada.
+          </p>
+          @if (redirecting()) {
+            <div class="flex items-center justify-center gap-3 text-electric-blue">
+              <svg class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+              </svg>
+              <span>Redirigiendo al formulario...</span>
             </div>
-          </div>
-
-          <!-- Payment methods -->
-          <div class="glass-card rounded-2xl p-6 mb-6">
-            <h3 class="text-white font-semibold mb-4">Selecciona tu método de pago</h3>
-            <div class="space-y-3">
-              @for (method of paymentMethods; track method.id) {
-                <button
-                  (click)="selectedMethod.set(method.id)"
-                  [class.border-electric-blue]="selectedMethod() === method.id"
-                  class="w-full flex items-center gap-4 p-4 rounded-xl border border-white/10 hover:border-electric-blue/50 transition-all"
-                >
-                  <span class="text-2xl">{{ method.icon }}</span>
-                  <div class="text-left">
-                    <p class="text-white font-medium">{{ method.name }}</p>
-                    <p class="text-xs text-gray-400">{{ method.description }}</p>
-                  </div>
-                  @if (selectedMethod() === method.id) {
-                    <span class="ml-auto text-electric-blue font-bold">✓</span>
-                  }
-                </button>
-              }
-            </div>
-          </div>
-
-          @if (errorMsg()) {
-            <div class="glass rounded-xl p-4 mb-4 border border-red-500/40 text-red-400 text-sm">
-              {{ errorMsg() }}
-            </div>
+          } @else {
+            <a [href]="formUrl" target="_blank" rel="noopener" class="btn-primary inline-block">
+              Ir al formulario de registro →
+            </a>
           }
-
-          <button
-            [disabled]="!selectedMethod() || loading()"
-            (click)="onPay()"
-            class="btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            @if (loading()) {
-              Procesando pago...
-            } @else {
-              Pagar {{ cartService.total() | currency:'COP':'symbol-narrow':'1.0-0' }}
-            }
-          </button>
-        }
+        </div>
       </div>
     </section>
   `,
 })
 export class PaymentComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
-  private readonly router = inject(Router);
-  private readonly http = inject(HttpClient);
-  private readonly store = inject(Store);
-  private readonly destroyRef = inject(DestroyRef);
-  readonly cartService = inject(CartService);
 
-  orderId = signal<string | null>(null);
-  selectedMethod = signal<PaymentMethod | null>(null);
-  loading = signal(false);
-  errorMsg = signal<string | null>(null);
-
-  readonly paymentMethods: { id: PaymentMethod; icon: string; name: string; description: string }[] = [
-    { id: 'wompi_pse',       icon: '🏦', name: 'PSE',       description: 'Débito bancario en línea' },
-    { id: 'wompi_nequi',     icon: '📱', name: 'Nequi',     description: 'Paga desde tu app Nequi' },
-    { id: 'wompi_daviplata', icon: '📲', name: 'Daviplata', description: 'Paga desde tu app Daviplata' },
-  ];
+  readonly formUrl = GOOGLE_FORM_URL;
+  redirecting = signal(false);
 
   ngOnInit(): void {
-    const id = this.route.snapshot.queryParamMap.get('orderId');
-    if (id) this.orderId.set(id);
-  }
-
-  onPay(): void {
-    const method = this.selectedMethod();
-    const id = this.orderId();
-    if (!method || !id) return;
-
-    this.loading.set(true);
-    this.errorMsg.set(null);
-
-    const wompiMethod = method.replace('wompi_', '');
-    this.http
-      .post<{ wompiCheckoutUrl?: string; redirectUrl?: string }>(
-        `${environment.apiUrl}/payments/wompi/initiate`,
-        { orderId: id, method: wompiMethod },
-      )
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (res) => {
-          this.store.dispatch(CartActions.clearCart());
-          const target = res.wompiCheckoutUrl ?? res.redirectUrl;
-          if (target && this.isSafeUrl(target)) {
-            window.location.href = target;
-          } else {
-            this.router.navigate(['/checkout/confirmacion', id]);
-          }
-        },
-        error: (err) => {
-          this.loading.set(false);
-          this.errorMsg.set(err?.error?.message ?? 'Error al iniciar el pago. Inténtalo de nuevo.');
-        },
-      });
-  }
-
-  private isSafeUrl(url: string): boolean {
-    try {
-      const parsed = new URL(url);
-      return parsed.protocol === 'https:' || parsed.protocol === 'http:';
-    } catch {
-      return false;
-    }
+    // Auto-redirect after short delay so the user sees the message
+    this.redirecting.set(true);
+    setTimeout(() => {
+      window.open(this.formUrl, '_blank', 'noopener');
+      this.redirecting.set(false);
+    }, 1500);
   }
 }

@@ -58,33 +58,9 @@ export const routes: Routes = [
         title: 'Mi Perfil | FAN TRIBUTE',
       },
       {
-        path: 'mis-entradas',
-        loadComponent: () => import('./features/mis-entradas/mis-entradas.component').then(m => m.MisEntradasComponent),
-        canActivate: [authGuard],
-        title: 'Mis Entradas | FAN TRIBUTE',
-      },
-      {
-        path: 'checkout',
-        children: [
-          {
-            path: 'carrito',
-            loadComponent: () => import('./features/checkout/cart/cart.component').then(m => m.CartComponent),
-            canActivate: [authGuard],
-            title: 'Carrito | FAN TRIBUTE',
-          },
-          {
-            path: 'pago',
-            loadComponent: () => import('./features/checkout/payment/payment.component').then(m => m.PaymentComponent),
-            canActivate: [authGuard],
-            title: 'Pago | FAN TRIBUTE',
-          },
-          {
-            path: 'confirmacion/:orderId',
-            loadComponent: () => import('./features/checkout/confirmation/confirmation.component').then(m => m.ConfirmationComponent),
-            canActivate: [authGuard],
-            title: 'Confirmación | FAN TRIBUTE',
-          },
-        ],
+        path: 'checkout/registro',
+        loadComponent: () => import('./features/checkout/payment/payment.component').then(m => m.PaymentComponent),
+        title: 'Registro | FAN TRIBUTE',
       },
     ],
   },

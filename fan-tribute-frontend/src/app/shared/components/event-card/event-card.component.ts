@@ -132,7 +132,7 @@ import { Event } from '../../models';
             class="btn-primary text-sm px-5 py-2.5"
             (click)="$event.stopPropagation()"
           >
-            Comprar
+            Registrarse
           </a>
         </div>
       </div>

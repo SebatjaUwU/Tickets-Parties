@@ -1,18 +1,16 @@
-import { Component, inject, OnInit, signal, computed } from '@angular/core';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { DatePipe, CurrencyPipe, NgClass, DecimalPipe } from '@angular/common';
-import { Store } from '@ngrx/store';
-import { switchMap, tap } from 'rxjs';
+import { Component, inject, OnInit, signal } from '@angular/core';
+import { ActivatedRoute, RouterLink } from '@angular/router';
+import { DatePipe, NgClass, DecimalPipe } from '@angular/common';
+import { switchMap } from 'rxjs';
 import { EventsService } from '../../../core/services/events.service';
-import { CartService } from '../../../core/services/cart.service';
-import { AuthService } from '../../../core/services/auth.service';
-import { NotificationService } from '../../../core/services/notification.service';
-import { Event, TicketTier } from '../../../shared/models';
+import { Event } from '../../../shared/models';
+
+const GOOGLE_FORM_URL = 'https://forms.google.com/PLACEHOLDER';
 
 @Component({
   selector: 'ft-event-detail',
   standalone: true,
-  imports: [RouterLink, DatePipe, CurrencyPipe, NgClass, DecimalPipe],
+  imports: [RouterLink, DatePipe, NgClass, DecimalPipe],
   template: `
     @if (event(); as ev) {
       <!-- Hero Banner -->
@@ -130,105 +128,28 @@ import { Event, TicketTier } from '../../../shared/models';
 
           </div>
 
-          <!-- Right: Tickets Sidebar (sticky) -->
+          <!-- Right: Registration Sidebar (sticky) -->
           <div class="lg:col-span-1">
             <div class="sticky top-24 space-y-4">
 
-              <!-- Occupancy bar -->
-              <div class="glass-dark rounded-2xl p-5">
-                <div class="flex justify-between items-center mb-2">
-                  <span class="text-gray-400 text-sm">Ocupación</span>
-                  <span class="text-white font-semibold text-sm">{{ occupancyPercent() }}%</span>
-                </div>
-                <div class="w-full h-2 bg-white/10 rounded-full overflow-hidden">
-                  <div
-                    class="h-full rounded-full transition-all duration-1000"
-                    [style.width.%]="occupancyPercent()"
-                    [ngClass]="occupancyPercent() >= 90 ? 'bg-red-500' : occupancyPercent() >= 70 ? 'bg-yellow-500' : 'bg-electric-blue-500'"
-                  ></div>
-                </div>
-                <p class="text-gray-500 text-xs mt-2">
-                  {{ ev.totalCapacity - ev.ticketsSold | number }} entradas disponibles
+              <!-- Registration CTA -->
+              <div class="glass-dark rounded-2xl p-6 border border-electric-blue-500/30">
+                <h3 class="text-white font-bold text-lg font-display mb-2">¡Asegura tu lugar!</h3>
+                <p class="text-gray-400 text-sm mb-6">
+                  Completa el formulario de registro y nos pondremos en contacto contigo para confirmar tu entrada.
+                </p>
+                <a
+                  [href]="formUrl"
+                  target="_blank"
+                  rel="noopener"
+                  class="btn-primary w-full text-center py-4 text-lg font-black block"
+                >
+                  🎫 REGISTRARSE AHORA
+                </a>
+                <p class="text-center text-gray-500 text-xs mt-4">
+                  El registro no garantiza la entrada hasta recibir confirmación.
                 </p>
               </div>
-
-              <!-- Ticket Tiers -->
-              @for (tier of tiers(); track tier.id) {
-                <div
-                  class="glass-dark rounded-2xl p-5 border transition-all duration-200 cursor-pointer"
-                  [ngClass]="selectedTier()?.id === tier.id ? 'border-electric-blue-500 shadow-glow-blue' : 'border-white/10 hover:border-white/20'"
-                  (click)="selectTier(tier)"
-                >
-                  <div class="flex justify-between items-start mb-3">
-                    <div>
-                      <span class="badge badge-blue text-xs mb-2 inline-block">{{ tier.type.toUpperCase() }}</span>
-                      <h3 class="text-white font-bold">{{ tier.name }}</h3>
-                    </div>
-                    <div class="text-right">
-                      <p class="text-2xl font-black text-white font-display">
-                        {{ tier.price | currency:tier.currency:'symbol-narrow':'1.0-0' }}
-                      </p>
-                    </div>
-                  </div>
-
-                  @if (tier.description) {
-                    <p class="text-gray-400 text-sm mb-3">{{ tier.description }}</p>
-                  }
-
-                  @if (tier.benefits?.length) {
-                    <ul class="space-y-1 mb-3">
-                      @for (benefit of tier.benefits; track benefit) {
-                        <li class="flex items-center gap-2 text-gray-300 text-xs">
-                          <svg class="w-3.5 h-3.5 text-green-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                          {{ benefit }}
-                        </li>
-                      }
-                    </ul>
-                  }
-
-                  <!-- Quantity selector -->
-                  @if (selectedTier()?.id === tier.id) {
-                    <div class="flex items-center gap-3 mt-4 pt-4 border-t border-white/10">
-                      <span class="text-gray-400 text-sm flex-1">Cantidad</span>
-                      <div class="flex items-center gap-2">
-                        <button class="w-8 h-8 rounded-lg bg-white/10 text-white flex items-center justify-center hover:bg-electric-blue-500 transition-colors" (click)="decreaseQty(); $event.stopPropagation()">-</button>
-                        <span class="text-white font-bold w-6 text-center">{{ selectedQty() }}</span>
-                        <button class="w-8 h-8 rounded-lg bg-white/10 text-white flex items-center justify-center hover:bg-electric-blue-500 transition-colors" (click)="increaseQty(tier); $event.stopPropagation()">+</button>
-                      </div>
-                    </div>
-                  }
-                </div>
-              }
-
-              <!-- Total & Buy CTA -->
-              @if (selectedTier()) {
-                <div class="glass-dark rounded-2xl p-5 border border-electric-blue-500/30">
-                  <div class="flex justify-between items-center mb-2">
-                    <span class="text-gray-400">Subtotal</span>
-                    <span class="text-white font-bold">{{ totalPrice() | currency:selectedTier()!.currency:'symbol-narrow':'1.0-0' }}</span>
-                  </div>
-                  <div class="flex justify-between items-center mb-4 text-sm">
-                    <span class="text-gray-500">Cargo de servicio</span>
-                    <span class="text-gray-400">{{ serviceFee() | currency:selectedTier()!.currency:'symbol-narrow':'1.0-0' }}</span>
-                  </div>
-                  <div class="divider-glow my-3"></div>
-                  <div class="flex justify-between items-center mb-5">
-                    <span class="text-white font-bold">Total</span>
-                    <span class="text-2xl font-black text-white gradient-text-blue font-display">
-                      {{ grandTotal() | currency:selectedTier()!.currency:'symbol-narrow':'1.0-0' }}
-                    </span>
-                  </div>
-
-                  <button class="btn-primary w-full py-4 text-lg font-black" (click)="addToCart()">
-                    🎫 COMPRAR ENTRADA
-                  </button>
-
-                  <p class="text-center text-gray-500 text-xs mt-3 flex items-center justify-center gap-1">
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
-                    Pago 100% seguro · SSL
-                  </p>
-                </div>
-              }
 
               <!-- Share -->
               <div class="glass-dark rounded-2xl p-4">
@@ -262,78 +183,14 @@ import { Event, TicketTier } from '../../../shared/models';
 })
 export class EventDetailComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
-  private readonly router = inject(Router);
   private readonly eventsService = inject(EventsService);
-  private readonly cartService = inject(CartService);
-  private readonly notify = inject(NotificationService);
-  readonly authService = inject(AuthService);
 
   event = signal<Event | null>(null);
-  tiers = signal<TicketTier[]>([]);
-  selectedTier = signal<TicketTier | null>(null);
-  selectedQty = signal(1);
-
-  occupancyPercent = computed(() => {
-    const ev = this.event();
-    if (!ev || !ev.totalCapacity) return 0;
-    return Math.round((ev.ticketsSold / ev.totalCapacity) * 100);
-  });
-
-  totalPrice = computed(() => {
-    const tier = this.selectedTier();
-    return tier ? tier.price * this.selectedQty() : 0;
-  });
-
-  serviceFee = computed(() => this.totalPrice() * 0.05);
-  grandTotal = computed(() => this.totalPrice() + this.serviceFee());
+  readonly formUrl = GOOGLE_FORM_URL;
 
   ngOnInit(): void {
     this.route.paramMap.pipe(
-      switchMap(params => {
-        const slug = params.get('slug')!;
-        return this.eventsService.getEventBySlug(slug);
-      }),
-      tap(ev => {
-        this.event.set(ev);
-        if (ev.ticketTiers?.length) this.tiers.set(ev.ticketTiers);
-      }),
-      switchMap(ev => this.eventsService.getEventTicketTiers(ev.id)),
-    ).subscribe(tiers => this.tiers.set(tiers));
-  }
-
-  selectTier(tier: TicketTier): void {
-    this.selectedTier.set(this.selectedTier()?.id === tier.id ? null : tier);
-    this.selectedQty.set(1);
-  }
-
-  increaseQty(tier: TicketTier): void {
-    if (this.selectedQty() < tier.maxPerOrder) {
-      this.selectedQty.update(q => q + 1);
-    }
-  }
-
-  decreaseQty(): void {
-    if (this.selectedQty() > 1) {
-      this.selectedQty.update(q => q - 1);
-    }
-  }
-
-  addToCart(): void {
-    const tier = this.selectedTier();
-    const ev = this.event();
-    if (!tier || !ev) return;
-    this.cartService.addItem({
-      tierId: tier.id,
-      tierName: tier.name,
-      eventId: ev.id,
-      eventTitle: ev.title,
-      eventDate: ev.startDate,
-      eventBannerUrl: ev.bannerUrl,
-      quantity: this.selectedQty(),
-      unitPrice: tier.price,
-      currency: tier.currency,
-    });
-    this.notify.success(`🎫 ${tier.name} agregada al carrito`);
-    this.router.navigate(['/checkout/carrito']);
+      switchMap(params => this.eventsService.getEventBySlug(params.get('slug')!)),
+    ).subscribe(ev => this.event.set(ev));
   }
 }
