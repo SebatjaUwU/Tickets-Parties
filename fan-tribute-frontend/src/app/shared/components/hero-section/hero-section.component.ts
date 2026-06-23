@@ -63,11 +63,6 @@ import { RouterLink } from '@angular/router';
 
         </div>
 
-        <!-- Scroll indicator -->
-        <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-float">
-          <span class="text-gray-400 text-xs uppercase tracking-widest">Scroll</span>
-          <div class="w-px h-12 bg-gradient-to-b from-electric-blue-500 to-transparent"></div>
-        </div>
       </div>
     </section>
   `,
