@@ -63,15 +63,6 @@ import { APP_CONFIG } from '../../../core/config/app.config';
                 {{ email }}
               </li>
             </ul>
-            <!-- Payment methods -->
-            <div class="mt-5">
-              <p class="text-gray-500 text-xs mb-2">Métodos de pago aceptados:</p>
-              <div class="flex flex-wrap gap-2">
-                @for (method of paymentMethods; track method) {
-                  <span class="px-2 py-1 rounded-lg bg-white/5 text-gray-400 text-xs border border-white/10">{{ method }}</span>
-                }
-              </div>
-            </div>
           </div>
         </div>
 
@@ -142,5 +133,4 @@ export class FooterComponent {
     },
   ];
 
-  readonly paymentMethods = ['PSE', 'Nequi', 'Daviplata'];
 }
