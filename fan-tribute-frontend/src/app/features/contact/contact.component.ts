@@ -163,7 +163,7 @@ export class ContactComponent {
         from_email:   v.email,
         reply_to:     v.email,
         subject:      v.subject,
-        message:      v.message,
+        message:      `Enviado por: ${v.name} (${v.email})\n\n${v.message}`,
         to_email:     APP_CONFIG.email,
       },
       { publicKey: environment.emailjs.publicKey }
