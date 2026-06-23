@@ -15,6 +15,11 @@ export const environment = {
     measurementId: 'G-3VNLZV4SZF',
   },
   ga4MeasurementId: 'G-3VNLZV4SZF',
+  emailjs: {
+    serviceId:  'service_vix9fjn',
+    templateId: 'YOUR_TEMPLATE_ID',
+    publicKey:  'ZJBUhhcfz0lk93_QA',
+  },
 };
 
 

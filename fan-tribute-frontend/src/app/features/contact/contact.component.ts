@@ -3,15 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import emailjs from '@emailjs/browser';
 import { APP_CONFIG } from '../../core/config/app.config';
-
-// ─── EmailJS credentials ─────────────────────────────────────────────────────
-// 1. Regístrate en https://emailjs.com (gratis)
-// 2. Email Services → conecta tu Gmail → copia el Service ID
-// 3. Email Templates → crea plantilla → copia el Template ID
-// 4. Account → API Keys → copia tu Public Key
-const EMAILJS_SERVICE_ID  = 'YOUR_SERVICE_ID';
-const EMAILJS_TEMPLATE_ID = 'YOUR_TEMPLATE_ID';
-const EMAILJS_PUBLIC_KEY  = 'YOUR_PUBLIC_KEY';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-contact',
@@ -164,8 +156,8 @@ export class ContactComponent {
     const v = this.form.getRawValue();
 
     emailjs.send(
-      EMAILJS_SERVICE_ID,
-      EMAILJS_TEMPLATE_ID,
+      environment.emailjs.serviceId,
+      environment.emailjs.templateId,
       {
         from_name:    v.name,
         from_email:   v.email,
@@ -173,7 +165,7 @@ export class ContactComponent {
         message:      v.message,
         to_email:     APP_CONFIG.email,
       },
-      { publicKey: EMAILJS_PUBLIC_KEY }
+      { publicKey: environment.emailjs.publicKey }
     ).then(() => {
       this.sent.set(true);
       this.form.reset();
