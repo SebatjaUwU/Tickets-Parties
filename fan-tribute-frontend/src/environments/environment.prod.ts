@@ -17,7 +17,7 @@ export const environment = {
   ga4MeasurementId: 'G-YOUR_GA4_ID',
   emailjs: {
     serviceId:  'service_vix9fjn',
-    templateId: 'YOUR_TEMPLATE_ID',
+    templateId: 'template_ck8eu9o',
     publicKey:  'ZJBUhhcfz0lk93_QA',
   },
 };
