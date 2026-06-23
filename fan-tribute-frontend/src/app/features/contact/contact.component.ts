@@ -111,10 +111,10 @@ export class ContactComponent {
   sent = signal(false);
 
   form = this.fb.group({
-    name: ['', [Validators.required, Validators.minLength(2)]],
-    email: ['', [Validators.required, Validators.email]],
+    name: ['', Validators.required],
+    email: ['', Validators.required],
     subject: ['', Validators.required],
-    message: ['', [Validators.required, Validators.minLength(20)]],
+    message: ['', Validators.required],
   });
 
   contactInfo = [

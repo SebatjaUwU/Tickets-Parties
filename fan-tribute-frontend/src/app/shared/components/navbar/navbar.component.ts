@@ -1,7 +1,6 @@
-import { Component, inject, signal, HostListener, OnInit, computed } from '@angular/core';
+import { Component, signal, HostListener, OnInit } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { NgClass } from '@angular/common';
-import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'ft-navbar',
@@ -46,88 +45,6 @@ import { AuthService } from '../../../core/services/auth.service';
           <!-- Right Actions -->
           <div class="flex items-center gap-3">
 
-            @if (authService.isAuthenticated()) {
-              <!-- User Menu -->
-              <div class="relative">
-                <!-- Botón toggle — stopPropagation para evitar que document:click lo cierre al instante -->
-                <button
-                  (click)="toggleMenu($event)"
-                  class="flex items-center gap-2 p-1.5 rounded-xl hover:bg-white/5 transition-all duration-200 outline-none"
-                >
-                  <!-- Avatar: imagen si existe, iniciales si no -->
-                  @if (authService.currentUser()?.avatarUrl) {
-                    <img
-                      [src]="authService.currentUser()!.avatarUrl!"
-                      [alt]="userInitials()"
-                      class="w-8 h-8 rounded-lg object-cover ring-2 ring-electric-blue-500/50"
-                    />
-                  } @else {
-                    <div
-                      class="w-8 h-8 rounded-lg ring-2 ring-electric-blue-500/50 flex items-center justify-center font-bold text-sm text-white"
-                      [style.background]="avatarGradient()"
-                    >
-                      {{ userInitials() }}
-                    </div>
-                  }
-                  <svg
-                    class="w-4 h-4 text-gray-400 transition-transform duration-200"
-                    [ngClass]="{'rotate-180': userMenuOpen()}"
-                    fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                  >
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                  </svg>
-                </button>
-
-                <!-- Dropdown -->
-                @if (userMenuOpen()) {
-                  <div class="absolute right-0 top-full mt-2 w-56 glass-dark rounded-2xl shadow-glass border border-white/10 py-2 z-[9999]" (click)="$event.stopPropagation()">
-
-                    <!-- Header del menú -->
-                    <div class="px-4 py-3 border-b border-white/10 flex items-center gap-3">
-                      @if (authService.currentUser()?.avatarUrl) {
-                        <img
-                          [src]="authService.currentUser()!.avatarUrl!"
-                          class="w-9 h-9 rounded-lg object-cover ring-2 ring-electric-blue-500/40"
-                        />
-                      } @else {
-                        <div
-                          class="w-9 h-9 rounded-lg ring-2 ring-electric-blue-500/40 flex items-center justify-center font-bold text-sm text-white flex-shrink-0"
-                          [style.background]="avatarGradient()"
-                        >
-                          {{ userInitials() }}
-                        </div>
-                      }
-                      <div class="min-w-0">
-                        <p class="text-white font-semibold text-sm truncate">{{ authService.currentUser()?.firstName }} {{ authService.currentUser()?.lastName }}</p>
-                        <p class="text-gray-400 text-xs truncate mt-0.5">{{ authService.currentUser()?.email }}</p>
-                      </div>
-                    </div>
-
-                    <!-- Opciones -->
-                    <a routerLink="/perfil" (click)="closeMenu()" class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-300 hover:text-white hover:bg-white/5 transition-all">
-                      <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-                      Mi Perfil
-                    </a>
-                    @if (authService.isOrganizer()) {
-                      <a routerLink="/dashboard" (click)="closeMenu()" class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-300 hover:text-white hover:bg-white/5 transition-all">
-                        <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
-                        Dashboard
-                      </a>
-                    }
-                    <div class="border-t border-white/10 mt-1 pt-1">
-                      <button (click)="logout()" class="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-400 hover:text-red-300 hover:bg-red-500/5 transition-all">
-                        <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
-                        Cerrar Sesión
-                      </button>
-                    </div>
-                  </div>
-                }
-              </div>
-
-            } @else {
-              <a routerLink="/auth/login" class="hidden sm:block btn-ghost text-sm px-4 py-2">Iniciar Sesión</a>
-              <a routerLink="/auth/registro" class="btn-primary text-sm px-5 py-2.5">Registrarse</a>
-            }
 
             <!-- Mobile Menu Button -->
             <button
@@ -172,28 +89,8 @@ import { AuthService } from '../../../core/services/auth.service';
   `],
 })
 export class NavbarComponent implements OnInit {
-  readonly authService = inject(AuthService);
-
   scrolled       = signal(false);
-  userMenuOpen   = signal(false);
   mobileMenuOpen = signal(false);
-
-  // Iniciales del usuario para el avatar por defecto
-  userInitials = computed(() => {
-    const user = this.authService.currentUser();
-    if (!user) return '?';
-    const f = user.firstName?.[0]?.toUpperCase() ?? '';
-    const l = user.lastName?.[0]?.toUpperCase()  ?? '';
-    return (f + l) || (user.email?.[0]?.toUpperCase() ?? '?');
-  });
-
-  // Color de fondo basado en las iniciales (consistente por usuario)
-  avatarGradient = computed(() => {
-    const user = this.authService.currentUser();
-    const seed = user?.id ?? user?.email ?? 'default';
-    const hue  = [...seed].reduce((acc, c) => acc + c.charCodeAt(0), 0) % 360;
-    return `linear-gradient(135deg, hsl(${hue},70%,40%), hsl(${(hue + 60) % 360},70%,30%))`;
-  });
 
   readonly navLinks = [
     { path: '/',         label: 'Inicio',   exact: true  },
@@ -210,29 +107,8 @@ export class NavbarComponent implements OnInit {
     this.scrolled.set(window.scrollY > 20);
   }
 
-  // Cierra el menú al hacer click en cualquier parte fuera del dropdown
-  @HostListener('document:click')
-  onDocumentClick(): void {
-    this.userMenuOpen.set(false);
-  }
-
-  // ─── Importante: stopPropagation para que document:click no lo cierre al instante ───
-  toggleMenu(event: MouseEvent): void {
-    event.stopPropagation();
-    this.userMenuOpen.set(!this.userMenuOpen());
-  }
-
   toggleMobile(event: MouseEvent): void {
     event.stopPropagation();
     this.mobileMenuOpen.set(!this.mobileMenuOpen());
-  }
-
-  closeMenu(): void {
-    this.userMenuOpen.set(false);
-  }
-
-  logout(): void {
-    this.userMenuOpen.set(false);
-    this.authService.logout();
   }
 }
