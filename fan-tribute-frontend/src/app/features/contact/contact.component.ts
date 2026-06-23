@@ -1,9 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
-import { environment } from '../../../environments/environment';
-import { NotificationService } from '../../core/services/notification.service';
 import { APP_CONFIG } from '../../core/config/app.config';
 
 @Component({
@@ -74,17 +71,22 @@ import { APP_CONFIG } from '../../core/config/app.config';
               ></textarea>
             </div>
 
-            <button
-              type="submit"
-              [disabled]="form.invalid || sending()"
-              class="btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              @if (sending()) {
-                <span>Enviando...</span>
-              } @else {
-                <span>Enviar mensaje</span>
-              }
-            </button>
+            @if (sent()) {
+              <div class="p-4 rounded-xl bg-green-500/10 border border-green-500/30 text-center">
+                <p class="text-green-400 font-semibold">¡Listo! Se abrirá tu cliente de correo con el mensaje pre-rellenado.</p>
+                <button type="button" (click)="sent.set(false)" class="text-gray-400 text-sm mt-2 hover:text-white transition-colors">
+                  Enviar otro mensaje
+                </button>
+              </div>
+            } @else {
+              <button
+                type="submit"
+                [disabled]="form.invalid"
+                class="btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Enviar mensaje
+              </button>
+            }
           </form>
         </div>
 
@@ -105,10 +107,7 @@ import { APP_CONFIG } from '../../core/config/app.config';
 })
 export class ContactComponent {
   private readonly fb = inject(FormBuilder);
-  private readonly http = inject(HttpClient);
-  private readonly notify = inject(NotificationService);
 
-  sending = signal(false);
   sent = signal(false);
 
   form = this.fb.group({
@@ -124,18 +123,14 @@ export class ContactComponent {
   ];
 
   onSubmit(): void {
-    if (this.form.invalid || this.sending()) return;
-    this.sending.set(true);
-    this.http.post(`${environment.apiUrl}/contact`, this.form.value).subscribe({
-      next: () => {
-        this.notify.success('¡Mensaje enviado! Te responderemos pronto.');
-        this.form.reset();
-        this.sending.set(false);
-      },
-      error: () => {
-        this.notify.error('Error al enviar el mensaje. Inténtalo de nuevo.');
-        this.sending.set(false);
-      },
-    });
+    if (this.form.invalid) return;
+    const v = this.form.getRawValue();
+    const subject = encodeURIComponent(`[FAN TRIBUTE] ${v.subject} — de ${v.name}`);
+    const body = encodeURIComponent(
+      `Nombre: ${v.name}\nEmail: ${v.email}\nAsunto: ${v.subject}\n\n${v.message}`
+    );
+    window.location.href = `mailto:${APP_CONFIG.email}?subject=${subject}&body=${body}`;
+    this.sent.set(true);
+    this.form.reset();
   }
 }

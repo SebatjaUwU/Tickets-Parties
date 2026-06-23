@@ -37,7 +37,13 @@ initializeApp(environment.firebaseConfig);
 function restoreSessionFactory(authService: AuthService, tokenService: TokenService) {
   return () => {
     if (tokenService.isAccessTokenValid()) {
-      return authService.loadCurrentUser().pipe(catchError(() => of(null)));
+      return authService.loadCurrentUser().pipe(
+        catchError(() => {
+          // Backend unreachable or token rejected — clear stale session
+          tokenService.clearTokens();
+          return of(null);
+        })
+      );
     }
     return of(null);
   };
