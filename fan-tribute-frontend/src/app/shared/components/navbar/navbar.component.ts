@@ -15,16 +15,8 @@ import { NgClass } from '@angular/common';
         <div class="flex items-center justify-between h-18">
 
           <!-- Logo -->
-          <a routerLink="/" class="flex items-center gap-3 group">
-            <div class="relative">
-              <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-electric-blue-500 to-edm-orange-500 flex items-center justify-center shadow-glow-blue group-hover:shadow-glow-orange transition-all duration-300">
-                <span class="text-white font-black text-sm font-display">FT</span>
-              </div>
-            </div>
-            <div>
-              <span class="text-white font-black text-xl font-display tracking-wide">FAN TRIBUTE</span>
-              <div class="h-0.5 bg-gradient-to-r from-electric-blue-500 to-edm-orange-500 scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></div>
-            </div>
+          <a routerLink="/" class="flex items-center group">
+            <img src="logo.png" alt="FAN TRIBUTE" class="h-10 w-auto object-contain transition-opacity duration-300 group-hover:opacity-80" />
           </a>
 
           <!-- Desktop Nav Links -->

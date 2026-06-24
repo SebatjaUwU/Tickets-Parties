@@ -14,11 +14,8 @@ import { APP_CONFIG } from '../../../core/config/app.config';
 
           <!-- Brand -->
           <div>
-            <div class="flex items-center gap-3 mb-4">
-              <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-electric-blue-500 to-edm-orange-500 flex items-center justify-center shadow-glow-blue">
-                <span class="text-white font-black text-sm">FT</span>
-              </div>
-              <span class="text-white font-black text-xl font-display">FAN TRIBUTE</span>
+            <div class="mb-4">
+              <img src="logo.png" alt="FAN TRIBUTE" class="h-10 w-auto object-contain" />
             </div>
             <p class="text-gray-400 text-sm leading-relaxed mb-5">
               La plataforma EDM #1 de Colombia y Latinoamérica. Descubre eventos, artistas y vive la música electrónica al máximo.
