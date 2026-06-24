@@ -1,7 +1,7 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://api.fantribute.com/v1',
-  wsUrl: 'https://api.fantribute.com',
+  apiUrl: 'https://tickets-parties-production.up.railway.app/v1',
+  wsUrl: 'https://tickets-parties-production.up.railway.app',
   googleMapsApiKey: 'YOUR_PROD_GOOGLE_MAPS_KEY',
   stripePublicKey: 'pk_live_YOUR_STRIPE_PUBLIC_KEY',
   wompiPublicKey: 'pub_prod_YOUR_WOMPI_KEY',
