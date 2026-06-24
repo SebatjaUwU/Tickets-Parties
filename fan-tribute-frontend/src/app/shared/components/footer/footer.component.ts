@@ -15,7 +15,7 @@ import { APP_CONFIG } from '../../../core/config/app.config';
           <!-- Brand -->
           <div>
             <div class="mb-4">
-              <img src="logo.png" alt="FAN TRIBUTE" class="h-10 w-auto object-contain" />
+              <img src="logo.png?v=2" alt="FAN TRIBUTE" class="h-10 w-auto object-contain" />
             </div>
             <p class="text-gray-400 text-sm leading-relaxed mb-5">
               La plataforma EDM #1 de Colombia y Latinoamérica. Descubre eventos, artistas y vive la música electrónica al máximo.
