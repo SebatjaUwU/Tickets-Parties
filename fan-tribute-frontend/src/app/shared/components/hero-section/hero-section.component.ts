@@ -31,6 +31,11 @@ import { RouterLink } from '@angular/router';
       <div class="relative z-10 container-custom w-full py-20">
         <div class="max-w-4xl mx-auto text-center">
 
+          <!-- Logo -->
+          <div class="flex justify-center mb-8 animate-fade-down">
+            <img src="logo.png" alt="FAN TRIBUTE" class="h-24 md:h-32 w-auto object-contain drop-shadow-2xl" />
+          </div>
+
           <!-- Badge -->
           <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full glass border border-electric-blue-500/30 mb-8 animate-fade-down">
             <span class="w-2 h-2 bg-electric-blue-500 rounded-full animate-pulse"></span>
@@ -38,7 +43,7 @@ import { RouterLink } from '@angular/router';
           </div>
 
           <!-- Main title -->
-       
+
 
           <!-- Subtitle -->
           <p class="text-gray-300 text-lg md:text-xl max-w-2xl mx-auto mb-10 animate-fade-up leading-relaxed" style="animation-delay: 0.2s;">
