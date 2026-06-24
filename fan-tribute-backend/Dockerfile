@@ -3,8 +3,8 @@ FROM node:20-alpine AS base
 RUN apk add --no-cache libc6-compat openssl
 WORKDIR /app
 COPY package*.json ./
-RUN npm ci --only=production && cp -R node_modules /tmp/prod_node_modules
-RUN npm ci
+RUN npm ci --only=production --legacy-peer-deps && cp -R node_modules /tmp/prod_node_modules
+RUN npm ci --legacy-peer-deps
 
 # ---- Development ----
 FROM base AS development
