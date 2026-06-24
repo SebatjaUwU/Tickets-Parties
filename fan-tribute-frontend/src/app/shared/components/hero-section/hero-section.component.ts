@@ -33,7 +33,7 @@ import { RouterLink } from '@angular/router';
 
           <!-- Logo -->
           <div class="flex justify-center mb-8 animate-fade-down">
-            <img src="logo.png" alt="FAN TRIBUTE" class="h-24 md:h-32 w-auto object-contain drop-shadow-2xl" />
+            <img src="logo.png" alt="FAN TRIBUTE" class="h-48 md:h-64 w-auto object-contain drop-shadow-2xl" />
           </div>
 
           <!-- Badge -->
