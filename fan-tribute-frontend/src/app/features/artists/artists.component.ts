@@ -16,9 +16,6 @@ import { Artist } from '../../shared/models';
 
         <!-- Header -->
         <div class="text-center mb-16">
-          <span class="inline-block px-4 py-1 rounded-full text-sm font-semibold bg-electric-blue/10 text-electric-blue border border-electric-blue/30 mb-4">
-            TOP 20
-          </span>
           <h1 class="text-4xl md:text-6xl font-rajdhani font-bold text-white mb-4">
             ARTISTAS <span class="text-electric-blue">EDM</span>
           </h1>
