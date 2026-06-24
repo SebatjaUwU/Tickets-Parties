@@ -7,9 +7,9 @@ export const databaseConfig = (config: ConfigService): TypeOrmModuleOptions => (
   ssl: config.get('NODE_ENV') === 'production' ? { rejectUnauthorized: false } : false,
   entities: [__dirname + '/../**/*.entity{.ts,.js}'],
   migrations: [__dirname + '/../database/migrations/*{.ts,.js}'],
-  synchronize: config.get('NODE_ENV') === 'development',
+  synchronize: true,
   logging: config.get('NODE_ENV') === 'development' ? ['query', 'error'] : ['error'],
-  migrationsRun: config.get('NODE_ENV') === 'production',
+  migrationsRun: false,
   extra: {
     max: 10,
     min: 2,
