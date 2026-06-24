@@ -16,7 +16,7 @@ import { NgClass } from '@angular/common';
 
           <!-- Logo -->
           <a routerLink="/" class="flex items-center group">
-            <img src="logo.png" alt="FAN TRIBUTE" class="h-10 w-auto object-contain transition-opacity duration-300 group-hover:opacity-80" />
+            <span class="text-white font-black text-xl font-display tracking-wide group-hover:opacity-80 transition-opacity duration-300">FAN TRIBUTE</span>
           </a>
 
           <!-- Desktop Nav Links -->
