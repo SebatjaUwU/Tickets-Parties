@@ -2,6 +2,7 @@ import { Injectable, NotFoundException, BadRequestException, Logger } from '@nes
 import { InjectRepository } from '@nestjs/typeorm';
 import { ConfigService } from '@nestjs/config';
 import { Repository } from 'typeorm';
+import { createHash } from 'crypto';
 import Stripe from 'stripe';
 import { Payment } from './entities/payment.entity';
 import { Order } from '../tickets/entities/order.entity';
@@ -95,7 +96,6 @@ export class PaymentsService {
     };
 
     if (integritySecret) {
-      const { createHash } = await import('crypto');
       const signature = createHash('sha256')
         .update(`${reference}${amountCents}COP${integritySecret}`)
         .digest('hex');
