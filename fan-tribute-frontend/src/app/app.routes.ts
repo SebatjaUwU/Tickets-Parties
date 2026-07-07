@@ -65,7 +65,12 @@ export const routes: Routes = [
       {
         path: 'checkout/registro',
         loadComponent: () => import('./features/checkout/payment/payment.component').then(m => m.PaymentComponent),
-        title: 'Registro | FAN TRIBUTE',
+        title: 'Comprar Entradas | FAN TRIBUTE',
+      },
+      {
+        path: 'checkout/confirmacion/:orderId',
+        loadComponent: () => import('./features/checkout/confirmation/confirmation.component').then(m => m.ConfirmationComponent),
+        title: 'Confirmación de Compra | FAN TRIBUTE',
       },
     ],
   },

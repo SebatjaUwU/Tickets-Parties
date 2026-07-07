@@ -14,6 +14,22 @@ export class PaymentsController {
     private readonly config: ConfigService,
   ) {}
 
+  // ─── Guest Checkout (Wompi, no auth) ─────────────────────────────────────
+
+  @Public()
+  @Post('checkout')
+  @ApiOperation({ summary: 'Iniciar checkout con Wompi (sin cuenta requerida)' })
+  guestCheckout(@Body() body: any) {
+    return this.paymentsService.guestCheckout(body);
+  }
+
+  @Public()
+  @Get('order/:orderId')
+  @ApiOperation({ summary: 'Consultar estado de orden (página de confirmación)' })
+  getOrderPublic(@Param('orderId') orderId: string) {
+    return this.paymentsService.getOrderPublic(orderId);
+  }
+
   // ─── Stripe ──────────────────────────────────────────────────────────────
 
   @UseGuards(JwtAuthGuard)
@@ -34,14 +50,6 @@ export class PaymentsController {
 
   // ─── Wompi ───────────────────────────────────────────────────────────────
 
-  @UseGuards(JwtAuthGuard)
-  @Post('wompi/initiate')
-  @ApiBearerAuth()
-  @ApiOperation({ summary: 'Iniciar pago PSE/Nequi/Daviplata con Wompi' })
-  initiateWompi(@Body() body: any, @Request() req: any) {
-    return this.paymentsService.initiatePsePayment(body.orderId, body, req.user.id);
-  }
-
   @Public()
   @Post('wompi/callback')
   @ApiOperation({ summary: 'Callback de Wompi (uso interno)' })
@@ -49,11 +57,10 @@ export class PaymentsController {
     return this.paymentsService.handleWompiCallback(body);
   }
 
-  // Wompi redirects here after payment — we forward to the frontend (supports localhost in dev)
   @Public()
   @Get('wompi/return/:orderId')
   @ApiOperation({ summary: 'Redirección post-pago de Wompi al frontend' })
-  wompiReturn(@Param('orderId') orderId: string, @Res() res: Response) {
+  async wompiReturn(@Param('orderId') orderId: string, @Res() res: Response) {
     const frontendUrl = this.config.get<string>('FRONTEND_URL', 'http://localhost:4200');
     res.redirect(302, `${frontendUrl}/checkout/confirmacion/${orderId}`);
   }

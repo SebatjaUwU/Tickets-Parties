@@ -151,22 +151,21 @@ import { APP_CONFIG, SPOTIFY_EMBED_URL } from '../../../core/config/app.config';
           <div class="lg:col-span-1">
             <div class="sticky top-24 space-y-4">
 
-              <!-- Registration CTA -->
+              <!-- Ticket purchase CTA -->
               <div class="glass-dark rounded-2xl p-6 border border-electric-blue-500/30">
-                <h3 class="text-white font-bold text-lg font-display mb-2">¡Asegura tu lugar!</h3>
+                <h3 class="text-white font-bold text-lg font-display mb-2">¡Consigue tu entrada!</h3>
                 <p class="text-gray-400 text-sm mb-6">
-                  Completa el formulario de registro y nos pondremos en contacto contigo para confirmar tu entrada.
+                  Compra de forma segura con Wompi. Acepta PSE, Nequi, Daviplata y tarjetas.
                 </p>
                 <a
-                  [href]="formUrl"
-                  target="_blank"
-                  rel="noopener"
+                  routerLink="/checkout/registro"
+                  [queryParams]="{eventId: ev.id}"
                   class="btn-primary w-full text-center py-4 text-lg font-black block"
                 >
-                  🎫 REGISTRARSE AHORA
+                  🎫 COMPRAR ENTRADAS
                 </a>
                 <p class="text-center text-gray-500 text-xs mt-4">
-                  El registro no garantiza la entrada hasta recibir confirmación.
+                  Pago 100% seguro · Tu entrada llega al email
                 </p>
               </div>
 
@@ -221,7 +220,6 @@ export class EventDetailComponent implements OnInit {
   private readonly sanitizer = inject(DomSanitizer);
 
   event = signal<Event | null>(null);
-  readonly formUrl = APP_CONFIG.registrationFormUrl;
   readonly spotifyUrl: SafeResourceUrl = this.sanitizer.bypassSecurityTrustResourceUrl(
     SPOTIFY_EMBED_URL(APP_CONFIG.spotifyPlaylistId)
   );

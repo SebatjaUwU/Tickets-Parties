@@ -109,7 +109,7 @@ export class ConfirmationComponent implements OnInit {
   }
 
   private fetchOrder(): void {
-    this.http.get<Order>(`${environment.apiUrl}/tickets/orders/${this.orderId()}`)
+    this.http.get<Order>(`${environment.apiUrl}/payments/order/${this.orderId()}`)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (order) => {
@@ -125,7 +125,7 @@ export class ConfirmationComponent implements OnInit {
     this.devConfirming.set(true);
     this.devMsg.set(null);
 
-    this.http.get<Order>(`${environment.apiUrl}/tickets/orders/${this.orderId()}`)
+    this.http.get<Order>(`${environment.apiUrl}/payments/order/${this.orderId()}`)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (order) => {

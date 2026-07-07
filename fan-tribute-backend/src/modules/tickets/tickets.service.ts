@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import * as QRCode from 'qrcode';
 import { v4 as uuidv4 } from 'uuid';
 import { Ticket } from './entities/ticket.entity';
@@ -148,6 +148,57 @@ export class TicketsService {
     });
     if (!order) throw new NotFoundException('Orden no encontrada');
     return order;
+  }
+
+  async createGuestOrder(body: {
+    eventId: string;
+    items: Array<{ tierId: string; quantity: number }>;
+    buyer: { name: string; email: string; phone?: string };
+  }): Promise<{ orderId: string; orderNumber: string; total: number }> {
+    const tierIds = body.items.map(i => i.tierId);
+    const tiers = await this.tierRepo.findBy({ id: In(tierIds), isActive: true });
+
+    if (tiers.length !== tierIds.length) {
+      throw new BadRequestException('Una o más categorías de tickets no están disponibles');
+    }
+
+    const tierMap = new Map(tiers.map(t => [t.id, t]));
+    const subtotal = body.items.reduce((s, i) => s + Number(tierMap.get(i.tierId)!.price) * i.quantity, 0);
+    const serviceFee = subtotal * 0.05;
+    const total = subtotal + serviceFee;
+
+    const order = this.orderRepo.create({
+      buyerName: body.buyer.name,
+      buyerEmail: body.buyer.email,
+      buyerPhone: body.buyer.phone ?? '',
+      eventId: body.eventId,
+      orderNumber: `ORD-${Date.now()}`,
+      status: 'pending',
+      subtotal,
+      discountAmount: 0,
+      serviceFee,
+      taxes: 0,
+      total,
+      currency: 'COP',
+    });
+    const saved = await this.orderRepo.save(order);
+
+    for (const item of body.items) {
+      const tier = tierMap.get(item.tierId)!;
+      await this.orderItemRepo.save(this.orderItemRepo.create({
+        orderId: saved.id,
+        ticketTierId: item.tierId,
+        quantity: item.quantity,
+        unitPrice: Number(tier.price),
+        totalPrice: Number(tier.price) * item.quantity,
+      }));
+    }
+
+    return { orderId: saved.id, orderNumber: saved.orderNumber, total };
+  }
+
+  async getOrderPublic(orderId: string): Promise<Order | null> {
+    return this.orderRepo.findOne({ where: { id: orderId } });
   }
 
   async getUserTickets(userId: string): Promise<Ticket[]> {

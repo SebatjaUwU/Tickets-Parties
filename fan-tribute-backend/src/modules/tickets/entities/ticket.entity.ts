@@ -9,8 +9,8 @@ export class Ticket {
   @ManyToOne(() => Order) order: Order;
   @Column() orderId: string;
   @Column() eventId: string;
-  @ManyToOne(() => User) user: User;
-  @Column() userId: string;
+  @ManyToOne(() => User, { nullable: true }) user: User;
+  @Column({ nullable: true }) userId: string;
   @Column({ nullable: true }) attendeeName: string;
   @Column({ nullable: true }) attendeeEmail: string;
   @Column({ type: 'text', nullable: true }) qrCode: string;

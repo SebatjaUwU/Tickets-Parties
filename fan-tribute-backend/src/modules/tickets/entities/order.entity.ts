@@ -6,9 +6,12 @@ import { OrderItem } from './order-item.entity';
 export class Order {
   @PrimaryGeneratedColumn('uuid') id: string;
   @Column({ unique: true }) orderNumber: string;
-  @ManyToOne(() => User) user: User;
-  @Column() userId: string;
+  @ManyToOne(() => User, { nullable: true }) user: User;
+  @Column({ nullable: true }) userId: string;
   @Column() eventId: string;
+  @Column({ nullable: true }) buyerName: string;
+  @Column({ nullable: true }) buyerEmail: string;
+  @Column({ nullable: true }) buyerPhone: string;
   @Column({ default: 'pending' }) status: string;
   @Column({ type: 'decimal', precision: 12, scale: 2, default: 0 }) subtotal: number;
   @Column({ type: 'decimal', precision: 12, scale: 2, default: 0 }) discountAmount: number;
