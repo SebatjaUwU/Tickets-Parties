@@ -87,22 +87,23 @@ export class PaymentsService {
     });
     await this.paymentRepo.save(payment);
 
-    const checkoutParams: Record<string, string> = {
+    const baseParams = new URLSearchParams({
       'public-key': wompiKey,
       'currency': 'COP',
       'amount-in-cents': String(amountCents),
       'reference': reference,
       'redirect-url': redirectUrl,
-    };
+    });
+
+    // signature:integrity must NOT be percent-encoded (%3A) — Wompi parses the raw colon
+    let wompiCheckoutUrl = `https://checkout.wompi.co/p/?${baseParams.toString()}`;
 
     if (integritySecret) {
       const signature = createHash('sha256')
         .update(`${reference}${amountCents}COP${integritySecret}`)
         .digest('hex');
-      checkoutParams['signature:integrity'] = signature;
+      wompiCheckoutUrl += `&signature:integrity=${signature}`;
     }
-
-    const wompiCheckoutUrl = `https://checkout.wompi.co/p/?${new URLSearchParams(checkoutParams).toString()}`;
     return { wompiCheckoutUrl, reference, amountInCents: amountCents, redirectUrl };
   }
 
