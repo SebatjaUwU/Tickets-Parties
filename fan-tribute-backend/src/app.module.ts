@@ -34,7 +34,7 @@ import { databaseConfig } from './config/database.config';
         JWT_EXPIRES_IN:      Joi.string().default('15m'),
         JWT_REFRESH_SECRET:  Joi.string().min(32).required(),
         JWT_REFRESH_EXPIRES: Joi.string().default('7d'),
-        REDIS_URL:           Joi.string().required(),
+        REDIS_URL:           Joi.string().optional().default('redis://localhost:6379'),
         FRONTEND_URL:        Joi.string().required(),
         AWS_REGION:          Joi.string().default('us-east-1'),
         AWS_ACCESS_KEY_ID:   Joi.string().optional(),
