@@ -239,3 +239,4 @@ export class PaymentsService {
     this.logger.log(`Order ${orderId} confirmed via ${provider} — ${tickets.length} tickets generated`);
   }
 }
+
